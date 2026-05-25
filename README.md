@@ -2,7 +2,7 @@
 
 > Real-time Indonesia Earthquake Monitor with AI & 3D Visualization
 
-![TremorID](https://img.shields.io/badge/TremorID-Hackathon%202025-red)
+![TremorID](https://img.shields.io/badge/TremorID-Hackathon%202026-red)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## 🎯 About
