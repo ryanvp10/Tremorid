@@ -224,10 +224,11 @@ async function fetchFeltQuakes() {
 }
 
 async function refreshQuakes() {
-  await Promise.all([
+  const [latest, felt] = await Promise.all([
     fetchLatestQuakes(),
     fetchFeltQuakes(),
   ]);
+  return [...latest, ...felt];
 }
 
 function refreshQuakesOnce() {
@@ -251,10 +252,10 @@ function start() {
     return refreshTimer;
   }
 
-  refreshQuakesOnce().catch(logRefreshError);
+  handleNewQuakeAlerts().catch(logRefreshError);
 
   refreshTimer = setInterval(() => {
-    refreshQuakesOnce().catch(logRefreshError);
+    handleNewQuakeAlerts().catch(logRefreshError);
   }, REFRESH_INTERVAL_MS);
 
   if (typeof refreshTimer.unref === 'function') {
@@ -273,4 +274,41 @@ function stop() {
   refreshTimer = null;
 }
 
-module.exports = { fetchLatestQuakes, fetchFeltQuakes, start, stop };
+async function handleNewQuakeAlerts() {
+  try {
+    const allQuakes = await refreshQuakes();
+    const significant = allQuakes.filter(q => q.magnitude >= 5.0);
+    if (significant.length === 0) return;
+
+    const { getSubscribers } = require('../db');
+    const subscribers = getSubscribers();
+    if (subscribers.length === 0) return;
+
+    const { getBot } = require('../telegram/bot');
+    const bot = getBot();
+    if (!bot) return;
+
+    for (const quake of significant) {
+      const alertText =
+        `🌋 EARTHQUAKE ALERT — Indonesia\n\n` +
+        `📍 ${quake.location || 'Unknown'}, Indonesia\n` +
+        `📊 Magnitude ${quake.magnitude} SR\n` +
+        `📏 Depth: ${quake.depth || '?'} km\n` +
+        `🕐 ${quake.datetime} WIB\n` +
+        `🌊 ${quake.tsunami || 'No tsunami potential'}`;
+
+      for (const sub of subscribers) {
+        try {
+          await bot.telegram.sendMessage(sub.chat_id, alertText);
+        } catch (sendErr) {
+          console.error(`[bmkgFetcher] Failed to send alert to ${sub.chat_id}:`, sendErr.message);
+        }
+      }
+      console.log(`[bmkgFetcher] Alert sent for M${quake.magnitude} ${quake.location} to ${subscribers.length} subscribers`);
+    }
+  } catch (err) {
+    console.error('[bmkgFetcher] handleNewQuakeAlerts error:', err.message);
+  }
+}
+
+module.exports = { fetchLatestQuakes, fetchFeltQuakes, start, stop, handleNewQuakeAlerts };

@@ -2,8 +2,8 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const quakeRoutes = require('./routes/quakes')
-const { getBotWebhookHandler } = require('./telegram/bot')
-const { start: startBmkgFetcher, stop: stopBmkgFetcher } = require('./services/bmkgFetcher')
+const { initBot } = require('./telegram/bot')
+const { start: startBmkgFetcher, stop: stopBmkgFetcher, handleNewQuakeAlerts } = require('./services/bmkgFetcher')
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -23,9 +23,16 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
 })
 
-// Telegram webhook
-app.post('/api/telegram/webhook', getBotWebhookHandler())
+// Telegram webhook (polling mode used on HF Spaces, webhook for production)
+app.post('/api/telegram/webhook', (req, res) => {
+  console.log('Telegram webhook received')
+  res.sendStatus(200)
+})
 
+// Initialize Telegram bot (starts long-polling)
+initBot()
+
+// Start BMKG fetcher (every 5 min)
 const bmkgTimer = startBmkgFetcher()
 
 // Start server
