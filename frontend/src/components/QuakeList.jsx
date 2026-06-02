@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import QuakeCard from './QuakeCard'
 
-function QuakeList() {
+function QuakeList({ filters = {} }) {
   const [quakes, setQuakes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -11,7 +11,13 @@ function QuakeList() {
 
     async function fetchQuakes() {
       try {
-        const response = await fetch('http://localhost:3000/api/quakes')
+        const params = new URLSearchParams()
+        if (filters.minMag) params.append('minMag', filters.minMag)
+        if (filters.maxMag) params.append('maxMag', filters.maxMag)
+        if (filters.maxDepth) params.append('maxDepth', filters.maxDepth)
+
+        const url = `http://localhost:3000/api/quakes${params.toString() ? '?' + params.toString() : ''}`
+        const response = await fetch(url)
 
         if (!response.ok) {
           throw new Error('Failed to fetch earthquakes')
@@ -38,11 +44,20 @@ function QuakeList() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [filters])
+
+  const activeFilterCount = [filters.minMag, filters.maxMag, filters.maxDepth].filter(Boolean).length
 
   return (
     <section className="min-h-full bg-bg-secondary p-4 text-text-primary">
-      <h2 className="mb-4 text-base font-semibold">📊 Gempa Terkini</h2>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-base font-semibold">📊 Gempa Terkini</h2>
+        {activeFilterCount > 0 && (
+          <span className="rounded-full bg-accent/20 px-2 py-0.5 text-xs font-medium text-accent">
+            Filters: {activeFilterCount} active
+          </span>
+        )}
+      </div>
 
       {loading && (
         <p className="text-sm text-text-secondary">Loading earthquakes...</p>
