@@ -99,8 +99,11 @@ function getSubscribers() {
 
 function addSubscriber(chatId, username) {
   const stmt = db.prepare(`
-    INSERT OR IGNORE INTO subscribers (chat_id, username)
-    VALUES (?, ?)
+    INSERT INTO subscribers (chat_id, username, is_active)
+    VALUES (?, ?, 1)
+    ON CONFLICT(chat_id) DO UPDATE SET
+      is_active = 1,
+      username = excluded.username
   `)
   return stmt.run(chatId, username)
 }

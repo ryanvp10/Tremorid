@@ -1,5 +1,6 @@
 const BMKG_BASE = 'https://data.bmkg.go.id/DataMKG/TEWS';
 const { db } = require('../db');
+const { broadcastAlert } = require('../telegram/bot');
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 const FETCH_TIMEOUT_MS = 10_000;
@@ -132,23 +133,33 @@ function mapQuake(item) {
 }
 
 function saveQuakes(quakes) {
-  const saveMany = db.transaction((items) => {
-    for (const quake of items) {
-      UPSERT_QUAKE.run(
-        quake.datetime,
-        quake.magnitude,
-        quake.depth,
-        quake.latitude,
-        quake.longitude,
-        quake.location,
-        quake.felt,
-        quake.tsunami
-      );
-    }
-  });
+  const newQuakes = [];
 
-  saveMany(quakes);
-  return quakes;
+  for (const quake of quakes) {
+    // Check if this quake already exists
+    const existing = db.prepare(
+      'SELECT id FROM earthquakes WHERE datetime = ? AND latitude = ? AND longitude = ?'
+    ).get(quake.datetime, quake.latitude, quake.longitude);
+
+    if (existing) {
+      // Update existing record
+      UPSERT_QUAKE.run(
+        quake.datetime, quake.magnitude, quake.depth,
+        quake.latitude, quake.longitude, quake.location,
+        quake.felt, quake.tsunami
+      );
+    } else {
+      // Insert new record
+      UPSERT_QUAKE.run(
+        quake.datetime, quake.magnitude, quake.depth,
+        quake.latitude, quake.longitude, quake.location,
+        quake.felt, quake.tsunami
+      );
+      newQuakes.push(quake);
+    }
+  }
+
+  return newQuakes;
 }
 
 function normalizeGempaList(data) {
@@ -214,13 +225,29 @@ async function fetchWithRetry(url, retries = RETRY_DELAYS_MS.length + 1) {
 async function fetchLatestQuakes() {
   const data = await fetchWithRetry(`${BMKG_BASE}/gempaterkini.json`);
   const quakes = normalizeGempaList(data);
-  return saveQuakes(quakes.map(mapQuake).filter(Boolean));
+  const newQuakes = saveQuakes(quakes.map(mapQuake).filter(Boolean));
+
+  for (const quake of newQuakes) {
+    if (quake.magnitude >= 5.0) {
+      await broadcastAlert(quake);
+    }
+  }
+
+  return newQuakes;
 }
 
 async function fetchFeltQuakes() {
   const data = await fetchWithRetry(`${BMKG_BASE}/gempadirasakan.json`);
   const quakes = normalizeGempaList(data);
-  return saveQuakes(quakes.map(mapQuake).filter(Boolean));
+  const newQuakes = saveQuakes(quakes.map(mapQuake).filter(Boolean));
+
+  for (const quake of newQuakes) {
+    if (quake.magnitude >= 5.0) {
+      await broadcastAlert(quake);
+    }
+  }
+
+  return newQuakes;
 }
 
 async function refreshQuakes() {
@@ -276,36 +303,7 @@ function stop() {
 
 async function handleNewQuakeAlerts() {
   try {
-    const allQuakes = await refreshQuakes();
-    const significant = allQuakes.filter(q => q.magnitude >= 5.0);
-    if (significant.length === 0) return;
-
-    const { getSubscribers } = require('../db');
-    const subscribers = getSubscribers();
-    if (subscribers.length === 0) return;
-
-    const { getBot } = require('../telegram/bot');
-    const bot = getBot();
-    if (!bot) return;
-
-    for (const quake of significant) {
-      const alertText =
-        `🌋 EARTHQUAKE ALERT — Indonesia\n\n` +
-        `📍 ${quake.location || 'Unknown'}, Indonesia\n` +
-        `📊 Magnitude ${quake.magnitude} SR\n` +
-        `📏 Depth: ${quake.depth || '?'} km\n` +
-        `🕐 ${quake.datetime} WIB\n` +
-        `🌊 ${quake.tsunami || 'No tsunami potential'}`;
-
-      for (const sub of subscribers) {
-        try {
-          await bot.telegram.sendMessage(sub.chat_id, alertText);
-        } catch (sendErr) {
-          console.error(`[bmkgFetcher] Failed to send alert to ${sub.chat_id}:`, sendErr.message);
-        }
-      }
-      console.log(`[bmkgFetcher] Alert sent for M${quake.magnitude} ${quake.location} to ${subscribers.length} subscribers`);
-    }
+    await refreshQuakes();
   } catch (err) {
     console.error('[bmkgFetcher] handleNewQuakeAlerts error:', err.message);
   }

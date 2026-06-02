@@ -6,6 +6,21 @@ const {
   getQuakeById,
   getQuakesNear,
 } = require('../db')
+const { generateQuakeSummary } = require('../services/ai')
+
+// Simple in-memory rate limiter for AI endpoints
+const aiRateLimiter = new Map();
+const AI_RATE_LIMIT = 5; // max 5 requests
+const AI_RATE_WINDOW = 60 * 1000; // per 60 seconds
+
+function checkAiRateLimit(clientIp) {
+  const now = Date.now();
+  const requests = (aiRateLimiter.get(clientIp) || []).filter(t => now - t < AI_RATE_WINDOW);
+  if (requests.length >= AI_RATE_LIMIT) return false;
+  requests.push(now);
+  aiRateLimiter.set(clientIp, requests);
+  return true;
+}
 
 // GET /api/quakes — all recent quakes (last 100)
 router.get('/', (req, res) => {
@@ -13,7 +28,8 @@ router.get('/', (req, res) => {
     const quakes = getAllQuakes(100)
     res.json(quakes)
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    console.error('[quakes] list error:', err.message)
+    res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -26,20 +42,27 @@ router.get('/latest', (req, res) => {
     }
     res.json(quake)
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    console.error('[quakes] latest error:', err.message)
+    res.status(500).json({ error: 'Internal server error' })
   }
 })
 
-// GET /api/quakes/:id — single quake by id
-router.get('/:id', (req, res) => {
+// GET /api/quakes/digest — summary for the latest quake
+router.get('/digest', async (req, res) => {
   try {
-    const quake = getQuakeById(req.params.id)
-    if (!quake) {
-      return res.status(404).json({ error: 'Earthquake not found' })
+    if (!checkAiRateLimit(req.ip)) {
+      return res.status(429).json({ error: 'Too many requests, please try again later.' })
     }
-    res.json(quake)
+    const quake = getLatestQuake()
+    if (!quake) {
+      return res.status(404).json({ error: 'No earthquakes found' })
+    }
+
+    const summary = await generateQuakeSummary(quake)
+    res.json({ summary })
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    console.error('[quakes] digest error:', err.message)
+    res.status(500).json({ error: 'Failed to generate summary' })
   }
 })
 
@@ -57,7 +80,41 @@ router.get('/near', (req, res) => {
     const quakes = getQuakesNear(lat, lon, radius)
     res.json(quakes)
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    console.error('[quakes] near error:', err.message)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// GET /api/quakes/:id/summary — summary for a single quake by id
+router.get('/:id/summary', async (req, res) => {
+  try {
+    if (!checkAiRateLimit(req.ip)) {
+      return res.status(429).json({ error: 'Too many requests, please try again later.' })
+    }
+    const quake = getQuakeById(req.params.id)
+    if (!quake) {
+      return res.status(404).json({ error: 'Earthquake not found' })
+    }
+
+    const summary = await generateQuakeSummary(quake)
+    res.json({ summary })
+  } catch (err) {
+    console.error('[quakes] summary error:', err.message)
+    res.status(500).json({ error: 'Failed to generate summary' })
+  }
+})
+
+// GET /api/quakes/:id — single quake by id
+router.get('/:id', (req, res) => {
+  try {
+    const quake = getQuakeById(req.params.id)
+    if (!quake) {
+      return res.status(404).json({ error: 'Earthquake not found' })
+    }
+    res.json(quake)
+  } catch (err) {
+    console.error('[quakes] detail error:', err.message)
+    res.status(500).json({ error: 'Internal server error' })
   }
 })
 
