@@ -16,7 +16,7 @@ function QuakeList({ filters = {} }) {
         if (filters.maxMag) params.append('maxMag', filters.maxMag)
         if (filters.maxDepth) params.append('maxDepth', filters.maxDepth)
 
-        const url = `http://localhost:3000/api/quakes${params.toString() ? '?' + params.toString() : ''}`
+        const url = `/api/quakes${params.toString() ? '?' + params.toString() : ''}`
         const response = await fetch(url)
 
         if (!response.ok) {
