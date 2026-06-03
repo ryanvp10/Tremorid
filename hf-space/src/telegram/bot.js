@@ -149,7 +149,7 @@ async function broadcastAlert(quake) {
 }
 
 function getBotWebhookHandler() {
-  return bot.webhookCallback('/api/telegram-webhook');
+  return bot.webhookCallback('/telegram-webhook')
 }
 
 module.exports = { bot, broadcastAlert, getBotWebhookHandler };
