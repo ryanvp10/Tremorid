@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import QuakeCard from './QuakeCard'
+import { API_BASE } from '../services/api'
 
 function QuakeList({ filters = {} }) {
   const [quakes, setQuakes] = useState([])
@@ -16,7 +17,7 @@ function QuakeList({ filters = {} }) {
         if (filters.maxMag) params.append('maxMag', filters.maxMag)
         if (filters.maxDepth) params.append('maxDepth', filters.maxDepth)
 
-        const url = `/api/quakes${params.toString() ? '?' + params.toString() : ''}`
+        const url = `${API_BASE}/quakes${params.toString() ? '?' + params.toString() : ''}`
         const response = await fetch(url)
 
         if (!response.ok) {

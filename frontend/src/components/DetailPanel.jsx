@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { X } from 'lucide-react'
+import { API_BASE } from '../services/api'
 
 function getMagnitudeColor(magnitude) {
   if (!Number.isFinite(magnitude)) return 'text-text-secondary'
@@ -58,7 +59,7 @@ function DetailPanel({ quake, onClose }) {
       setSummaryLoading(true)
 
       try {
-        const response = await fetch(`/api/quakes/${encodeURIComponent(quake.id)}/summary`, {
+        const response = await fetch(`${API_BASE}/quakes/${encodeURIComponent(quake.id)}/summary`, {
           signal: controller.signal,
         })
 
