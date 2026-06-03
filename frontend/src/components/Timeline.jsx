@@ -56,7 +56,7 @@ function Timeline() {
   const maxCount = Math.max(...dailyCounts.map((d) => d.count), 1)
 
   return (
-    <div className="bg-bg-secondary border-t border-border px-3 md:px-4 py-3 shrink-0 min-h-[100px]">
+    <div className="bg-bg-secondary border-t border-border px-3 md:px-4 py-3 shrink-0">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-xs md:text-sm font-semibold text-text-primary">7-Day Activity</h2>
         {loading && <span className="text-[10px] text-text-secondary">Loading...</span>}
@@ -69,15 +69,15 @@ function Timeline() {
           const barH = Math.max(pct, 8)
 
           return (
-            <div key={day.key} className="flex flex-col items-center">
+            <div key={day.key} className="flex flex-col items-center justify-end h-[72px]">
               <span className="text-[10px] md:text-xs text-text-primary font-medium mb-1">{day.count}</span>
-              <div className="w-full bg-bg-primary rounded-sm overflow-hidden" style={{ height: '40px' }}>
+              <div className="w-full bg-bg-primary rounded-sm h-8 overflow-hidden">
                 <div
                   className="w-full bg-blue-500 rounded-sm transition-all duration-300"
                   style={{ height: `${barH}%`, marginTop: `${100 - barH}%` }}
                 />
               </div>
-              <span className="text-[9px] md:text-xs text-text-secondary mt-1">{day.label}</span>
+              <span className="text-[9px] md:text-xs text-text-secondary mt-1 whitespace-nowrap">{day.label}</span>
             </div>
           )
         })}

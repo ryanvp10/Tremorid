@@ -9,7 +9,7 @@
 }
 
 body {
-  @apply bg-bg-primary text-text-primary font-sans overflow-hidden;
+  @apply bg-bg-primary text-text-primary font-sans overflow-x-hidden;
   height: 100vh;
 }
 
