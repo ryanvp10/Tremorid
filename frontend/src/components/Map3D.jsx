@@ -10,6 +10,7 @@ import {
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { parseWilayah } from '../lib/parseWilayah'
 import { API_BASE } from '../services/api'
+import { formatDate } from '../utils/formatDate'
 
 function getMagnitudeColor(magnitude) {
   if (magnitude >= 5) return Color.RED
@@ -24,27 +25,6 @@ function formatInfoValue(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;')
-}
-
-function formatTooltipDate(datetime) {
-  if (!datetime) return '-'
-  const raw = String(datetime).trim()
-  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/)
-  if (match) {
-    const [, year, month, day, hour, minute] = match
-    return `${day}/${month}/${year}, ${hour}:${minute} WIB`
-  }
-  const date = new Date(raw)
-  if (!Number.isNaN(date.getTime())) {
-    const d = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }))
-    const dd = String(d.getDate()).padStart(2, '0')
-    const mm = String(d.getMonth() + 1).padStart(2, '0')
-    const yyyy = d.getFullYear()
-    const hh = String(d.getHours()).padStart(2, '0')
-    const min = String(d.getMinutes()).padStart(2, '0')
-    return `${dd}/${mm}/${yyyy}, ${hh}:${min} WIB`
-  }
-  return raw
 }
 
 function Map3D() {
@@ -109,7 +89,7 @@ function Map3D() {
                 <div>Location: ${formatInfoValue(parseWilayah(quake.Wilayah || quake.location))}</div>
                 <div>Magnitude: ${formatInfoValue(quake.magnitude)}</div>
                 <div>Depth: ${formatInfoValue(quake.depth)}</div>
-                <div>Datetime: ${formatTooltipDate(quake.datetime)}</div>
+                <div>Datetime: ${formatDate(quake.datetime)}</div>
               </div>
             `,
           })

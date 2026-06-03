@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { X } from 'lucide-react'
+import { formatDate } from '../utils/formatDate'
 import { parseWilayah } from '../lib/parseWilayah'
 import { API_BASE } from '../services/api'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -102,7 +103,7 @@ function DetailPanel({ quake, onClose }) {
   if (!quake || !details) return null
 
   const dateTimeDisplay = details.dateTime instanceof Date
-    ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(details.dateTime)
+    ? formatDate(details.dateTime)
     : details.dateTime
 
   return (

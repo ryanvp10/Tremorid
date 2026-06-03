@@ -1,33 +1,7 @@
 import React from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { parseWilayah } from '../lib/parseWilayah'
-
-function formatDatetime(datetime) {
-  if (!datetime) return '-'
-
-  const rawValue = String(datetime).trim()
-  const match = rawValue.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/)
-
-  if (match) {
-    const [, , month, day, hour, minute] = match
-    return `${day}/${month}/${match[1]}, ${hour}:${minute} WIB`
-  }
-
-  const date = new Date(datetime)
-
-  if (Number.isNaN(date.getTime())) {
-    return `${rawValue} WIB`
-  }
-
-  const d = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }))
-  const dd = String(d.getDate()).padStart(2, '0')
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const yyyy = d.getFullYear()
-  const hh = String(d.getHours()).padStart(2, '0')
-  const min = String(d.getMinutes()).padStart(2, '0')
-
-  return `${dd}/${mm}/${yyyy}, ${hh}:${min} WIB'
-}
+import { formatDate } from '../utils/formatDate'
 
 function getMagnitudeColor(magnitude) {
   const value = Number(magnitude)
@@ -76,7 +50,7 @@ function QuakeCard({ quake }) {
       </div>
 
       <time className="mt-3 block text-sm text-text-secondary" dateTime={datetime}>
-        {formatDatetime(datetime)}
+        {formatDate(datetime)}
       </time>
     </article>
   )
