@@ -86,6 +86,7 @@ function Map2D() {
           >
             <Popup>
               <div>
+                <p className="font-bold text-sm mb-1">Detail</p>
                 <div>Location: {quake.location ?? quake.place ?? quake.wilayah ?? '-'}</div>
                 <div>Magnitude: {quake.magnitude ?? quake.mag ?? quake.Magnitude ?? '-'}</div>
                 <div>Depth: {quake.depth ?? quake.Depth ?? quake.kedalaman ?? '-'}</div>
