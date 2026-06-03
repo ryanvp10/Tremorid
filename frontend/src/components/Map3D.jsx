@@ -33,8 +33,13 @@ function Map3D() {
 
     let isMounted = true
     const mapImagery = new UrlTemplateImageryProvider({
-      url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      credit: new Credit('&copy; Esri'),
+      url: `https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg`,
+      credit: new Credit('&copy; Stamen Design &copy; OpenStreetMap contributors'),
+    })
+
+    const labelImagery = new UrlTemplateImageryProvider({
+      url: `https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}.png`,
+      credit: new Credit('&copy; Stamen Design &copy; OpenStreetMap contributors'),
     })
 
     const viewer = new Viewer(containerRef.current, {
@@ -49,8 +54,10 @@ function Map3D() {
       fullscreenButton: false,
     })
 
+    viewer.scene.imageryLayers.addImageryProvider(labelImagery)
+
     viewer.camera.setView({
-      destination: Cartesian3.fromDegrees(118, -2, 2000000),
+      destination: Cartesian3.fromDegrees(118, -2, 6500000),
     })
 
     async function fetchQuakes() {
