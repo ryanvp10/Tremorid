@@ -58,28 +58,28 @@ function Timeline() {
   const maxCount = Math.max(...dailyCounts.map((d) => d.count), 1)
 
   return (
-    <footer style={{ flex: '0 0 auto' }} className="bg-bg-secondary border-t border-border">
-      <div className="px-3 pt-1.5 pb-1">
+    <footer style={{ flex: '0 0 auto', height: '96px' }} className="bg-bg-secondary border-t border-border">
+      <div className="h-full px-3 py-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-[10px] md:text-xs font-semibold text-text-primary">7-Day Activity</h2>
-          {loading && <span className="text-[8px] text-text-secondary">Loading...</span>}
-          {error && <span className="text-[8px] text-red-500">Error</span>}
+        <div className="flex items-center justify-between mb-0.5">
+          <h2 className="text-xs leading-none font-semibold text-text-primary">7-Day Activity</h2>
+          {loading && <span className="text-[9px] leading-none text-text-secondary">Loading...</span>}
+          {error && <span className="text-[9px] leading-none text-red-500">Error</span>}
         </div>
 
         {/* Bar chart grid */}
-        <div className="grid grid-cols-7 gap-1 md:gap-1.5">
+        <div className="grid grid-cols-7 gap-1 md:gap-1.5 flex-1 min-h-0">
           {dailyCounts.map((day) => {
             const pct = maxCount > 0 ? (day.count / maxCount) * 100 : 0
             const barH = Math.max(pct, 6)
 
             return (
-              <div key={day.key} className="flex flex-col items-center">
+              <div key={day.key} className="flex flex-col items-center justify-end min-h-0">
                 {/* Count */}
-                <span className="text-[8px] md:text-[10px] text-text-primary font-medium mb-0.5">{day.count}</span>
+                <span className="text-[9px] md:text-[10px] text-text-primary font-medium leading-none mb-px">{day.count}</span>
 
                 {/* Bar */}
-                <div className="w-full rounded-sm overflow-hidden bg-bg-primary" style={{ height: '22px' }}>
+                <div className="w-full rounded-sm overflow-hidden bg-bg-primary" style={{ height: '38px' }}>
                   <div
                     className="w-full bg-blue-500 rounded-sm"
                     style={{ height: `${barH}%`, marginTop: `${100 - barH}%` }}
@@ -87,9 +87,9 @@ function Timeline() {
                 </div>
 
                 {/* Labels */}
-                <div className="text-center mt-0.5">
-                  <p className="text-[7px] md:text-[8px] text-text-secondary leading-tight">{day.weekday}</p>
-                  <p className="text-[7px] md:text-[8px] text-text-secondary leading-tight">{day.date}</p>
+                <div className="text-center mt-px">
+                  <p className="text-[9px] md:text-[10px] text-text-secondary leading-none">{day.weekday}</p>
+                  <p className="text-[9px] md:text-[10px] text-text-secondary leading-none">{day.date}</p>
                 </div>
               </div>
             )
