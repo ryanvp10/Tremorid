@@ -58,37 +58,37 @@ function Timeline() {
   const maxCount = Math.max(...dailyCounts.map((d) => d.count), 1)
 
   return (
-    <div className="bg-bg-secondary border-t border-border px-2 pb-1 shrink-0">
+    <div className="bg-bg-secondary border-t border-border px-1.5 pt-1 pb-1 shrink-0 h-auto overflow-visible">
       {/* Header row */}
-      <div className="flex items-center justify-between px-1 pt-1 mb-0.5">
-        <h2 className="text-[10px] font-semibold text-text-primary">7-Day</h2>
-        {loading && <span className="text-[8px] text-text-secondary">...</span>}
-        {error && <span className="text-[8px] text-red-500">err</span>}
+      <div className="flex items-center justify-between px-0.5 mb-0.5 shrink-0">
+        <h2 className="text-[9px] font-semibold leading-none text-text-primary">7-Day Activity</h2>
+        {loading && <span className="text-[7px] leading-none text-text-secondary">...</span>}
+        {error && <span className="text-[7px] leading-none text-red-500">err</span>}
       </div>
 
       {/* Single row grid: each cell = count + bar + labels */}
-      <div className="grid grid-cols-7 gap-0.5">
+      <div className="grid grid-cols-7 gap-0.5 overflow-visible">
         {dailyCounts.map((day) => {
           const pct = maxCount > 0 ? (day.count / maxCount) * 100 : 0
           const barH = Math.max(pct, 5)
 
           return (
-            <div key={day.key} className="flex flex-col items-center" style={{ height: '52px' }}>
+            <div key={day.key} className="flex h-auto flex-col items-center overflow-visible">
               {/* Count */}
-              <span className="text-[9px] text-text-primary font-medium leading-none shrink-0">{day.count}</span>
+              <span className="shrink-0 text-[8px] font-medium leading-none text-text-primary">{day.count}</span>
 
-              {/* Bar area — fills remaining space */}
-              <div className="w-full bg-bg-primary rounded-sm overflow-hidden mt-0.5 flex-1 min-h-0">
+              {/* Bar area — compact so the labels always have room */}
+              <div className="mt-0.5 h-7 w-full shrink-0 overflow-hidden rounded-sm bg-bg-primary sm:h-8 md:h-9">
                 <div
-                  className="w-full bg-blue-500 rounded-sm"
+                  className="w-full rounded-sm bg-blue-500"
                   style={{ height: `${barH}%`, marginTop: `${100 - barH}%` }}
                 />
               </div>
 
-              {/* Labels — fixed height, never shrink */}
-              <div className="shrink-0 mt-0.5 text-center leading-[1.1]">
-                <div className="text-[7px] text-text-secondary">{day.weekday}</div>
-                <div className="text-[7px] text-text-secondary">{day.date}</div>
+              {/* Labels — never shrink, so weekday/date text cannot be clipped */}
+              <div className="mt-0.5 shrink-0 text-center leading-none overflow-visible">
+                <div className="text-[7px] leading-none text-text-secondary">{day.weekday}</div>
+                <div className="mt-px text-[7px] leading-none text-text-secondary">{day.date}</div>
               </div>
             </div>
           )
