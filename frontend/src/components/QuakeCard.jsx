@@ -1,4 +1,5 @@
 import React from 'react'
+import { useLanguage } from '../contexts/LanguageContext'
 
 function formatDatetime(datetime) {
   if (!datetime) return '-'
@@ -46,6 +47,7 @@ function getMagnitudeColor(magnitude) {
 }
 
 function QuakeCard({ quake }) {
+  const { t } = useLanguage()
   if (!quake) return null
 
   const { datetime, magnitude, depth, location, tsunami } = quake
@@ -62,22 +64,22 @@ function QuakeCard({ quake }) {
 
         {hasTsunamiPotential && (
           <span className="shrink-0 rounded border border-red-500/40 bg-red-500/20 px-2 py-1 text-xs font-bold tracking-wide text-red-300">
-            TSUNAMI
+            {t('detail.tsunamiRisk')}
           </span>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-3 text-sm">
         <div>
-          <p className="text-xs text-text-secondary">Magnitude</p>
+          <p className="text-xs text-text-secondary">{t('detail.magnitude')}</p>
           <p className={`text-2xl font-bold ${getMagnitudeColor(magnitude)}`}>
             {magnitude ?? '-'}
           </p>
         </div>
 
         <div>
-          <p className="text-xs text-text-secondary">Depth</p>
-          <p className="font-medium">{depth ?? '-'} km</p>
+          <p className="text-xs text-text-secondary">{t('detail.depth')}</p>
+          <p className="font-medium">{depth ?? '-'} {t('card.km')}</p>
         </div>
       </div>
 

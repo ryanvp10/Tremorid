@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
+import { useLanguage } from '../contexts/LanguageContext'
 import { API_BASE } from '../services/api'
 
 function Timeline() {
+  const { t } = useLanguage()
   const [dailyCounts, setDailyCounts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -62,9 +64,9 @@ function Timeline() {
       <div className="h-full px-4 py-3 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-text-primary">7-Day Activity</h2>
-          {loading && <span className="text-[10px] text-text-secondary">Loading...</span>}
-          {error && <span className="text-[10px] text-red-500">Error</span>}
+          <h2 className="text-sm font-semibold text-text-primary">{t('timeline.title')}</h2>
+          {loading && <span className="text-[10px] text-text-secondary">{t('timeline.loading')}</span>}
+          {error && <span className="text-[10px] text-red-500">{t('timeline.error')}</span>}
         </div>
 
         {/* Bar chart grid */}

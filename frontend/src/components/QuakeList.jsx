@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import QuakeCard from './QuakeCard'
 import { API_BASE } from '../services/api'
+import { useLanguage } from '../contexts/LanguageContext'
 
 function QuakeList({ filters = {} }) {
+  const { t } = useLanguage()
   const [quakes, setQuakes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -21,7 +23,7 @@ function QuakeList({ filters = {} }) {
         const response = await fetch(url)
 
         if (!response.ok) {
-          throw new Error('Failed to fetch earthquakes')
+          throw new Error(t('list.error'))
         }
 
         const data = await response.json()
@@ -31,7 +33,7 @@ function QuakeList({ filters = {} }) {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err.message || 'Failed to fetch earthquakes')
+          setError(err.message || t('list.error'))
         }
       } finally {
         if (isMounted) {
@@ -52,16 +54,16 @@ function QuakeList({ filters = {} }) {
   return (
     <section className="min-h-full bg-bg-secondary p-4 text-text-primary">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-base font-semibold">📊 Gempa Terkini</h2>
+        <h2 className="text-base font-semibold">{t('list.title')}</h2>
         {activeFilterCount > 0 && (
           <span className="rounded-full bg-accent/20 px-2 py-0.5 text-xs font-medium text-accent">
-            Filters: {activeFilterCount} active
+            {t('list.filtersActive').replace('{count}', activeFilterCount)}
           </span>
         )}
       </div>
 
       {loading && (
-        <p className="text-sm text-text-secondary">Loading earthquakes...</p>
+        <p className="text-sm text-text-secondary">{t('list.loading')}</p>
       )}
 
       {!loading && error && (
@@ -71,7 +73,7 @@ function QuakeList({ filters = {} }) {
       )}
 
       {!loading && !error && quakes.length === 0 && (
-        <p className="text-sm text-text-secondary">No earthquakes found</p>
+        <p className="text-sm text-text-secondary">{t('list.noData')}</p>
       )}
 
       {!loading && !error && quakes.length > 0 && (

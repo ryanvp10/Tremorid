@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { API_BASE } from '../services/api'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const MAJOR_CITIES = [
   { name: 'Jakarta', latitude: -6.21, longitude: 106.85 },
@@ -160,6 +161,7 @@ function normalizeQuakeResponse(data) {
 }
 
 function AmISafe() {
+  const { t } = useLanguage()
   const [location, setLocation] = useState('')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -176,7 +178,7 @@ function AmISafe() {
     if (!city) {
       setResult(null)
       setError(
-        `Please enter one of: ${MAJOR_CITIES.map((item) => item.name).join(', ')}.`
+        t('safe.errorCity').replace('{cities}', MAJOR_CITIES.map((item) => item.name).join(', '))
       )
       return
     }
@@ -188,7 +190,7 @@ function AmISafe() {
       const response = await fetch(`${API_BASE}/quakes?limit=50`)
 
       if (!response.ok) {
-        throw new Error('Unable to fetch recent earthquake data.')
+        throw new Error(t('safe.errorFetch'))
       }
 
       const data = await response.json()
@@ -221,7 +223,7 @@ function AmISafe() {
       })
     } catch (err) {
       setResult(null)
-      setError(err.message || 'Unable to check safety right now.')
+      setError(err.message || t('safe.errorGeneral'))
     } finally {
       setLoading(false)
     }
@@ -233,22 +235,22 @@ function AmISafe() {
   return (
     <section className="bg-bg-secondary border border-border rounded-lg p-4 text-text-primary shadow-lg">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold">📍 Am I Safe?</h2>
+        <h2 className="text-lg font-semibold">{t('safe.title')}</h2>
         <p className="mt-1 text-sm text-text-secondary">
-          Check recent earthquake activity within 500km of a major Indonesian city.
+          {t('safe.description')}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <label className="block text-sm font-medium text-text-secondary" htmlFor="safe-location">
-          City or location name
+          {t('safe.cityLabel')}
         </label>
         <input
           id="safe-location"
           type="text"
           value={location}
           onChange={(event) => setLocation(event.target.value)}
-          placeholder="Try Jakarta, Bandung, Denpasar..."
+          placeholder={t('safe.placeholder')}
           className="w-full rounded-lg border border-border bg-bg-card px-3 py-2 text-sm text-text-primary outline-none transition placeholder:text-text-secondary focus:border-accent focus:ring-2 focus:ring-accent/30"
         />
         <button
@@ -256,7 +258,7 @@ function AmISafe() {
           disabled={loading}
           className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? 'Checking...' : 'Check Safety'}
+          {loading ? t('safe.checking') : t('safe.check')}
         </button>
       </form>
 
@@ -274,7 +276,7 @@ function AmISafe() {
                 {result.city.name}
               </h3>
               <p className="mt-1 text-xs text-text-secondary">
-                Coordinates: {result.city.latitude.toFixed(2)}, {result.city.longitude.toFixed(2)}
+                {t('safe.coordinates')}: {result.city.latitude.toFixed(2)}, {result.city.longitude.toFixed(2)}
               </p>
             </div>
             <span className={`rounded-full px-3 py-1 text-xs font-bold ring-1 ${statusStyle.badgeClass}`}>
@@ -284,13 +286,13 @@ function AmISafe() {
 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-lg border border-border bg-bg-card/70 p-3">
-              <p className="text-xs text-text-secondary">Recent quakes within 500km</p>
+              <p className="text-xs text-text-secondary">{t('safe.recentQuakes')}</p>
               <p className="mt-1 text-2xl font-bold text-text-primary">
                 {result.nearbyQuakes.length}
               </p>
             </div>
             <div className="rounded-lg border border-border bg-bg-card/70 p-3">
-              <p className="text-xs text-text-secondary">Largest magnitude</p>
+              <p className="text-xs text-text-secondary">{t('safe.largestMagnitude')}</p>
               <p className="mt-1 text-2xl font-bold text-text-primary">
                 {result.nearbyQuakes.length ? result.largestMagnitude.toFixed(1) : '-'}
               </p>
@@ -298,7 +300,7 @@ function AmISafe() {
           </div>
 
           <div className="mt-4">
-            <h4 className="text-sm font-semibold text-text-primary">Safety tips</h4>
+            <h4 className="text-sm font-semibold text-text-primary">{t('safe.safetyTips')}</h4>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-text-secondary">
               {SAFETY_TIPS[status].map((tip) => (
                 <li key={tip}>{tip}</li>

@@ -5,6 +5,8 @@ import QuakeList from './components/QuakeList'
 import FilterPanel from './components/FilterPanel'
 import Timeline from './components/Timeline'
 
+import { LanguageProvider } from './contexts/LanguageContext'
+
 function App() {
   const [filters, setFilters] = useState({})
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -19,6 +21,7 @@ function App() {
   }, [])
 
   return (
+    <LanguageProvider>
     <div className="flex flex-col h-screen overflow-hidden bg-bg-primary" style={{ height: '100dvh' }}>
       <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
       <main className={`flex flex-1 overflow-hidden relative ${sidebarOpen ? 'md:overflow-hidden' : ''}`}>
@@ -51,6 +54,7 @@ function App() {
       </main>
       <Timeline />
     </div>
+    </LanguageProvider>
   )
 }
 

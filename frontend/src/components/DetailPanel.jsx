@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 import { API_BASE } from '../services/api'
+import { useLanguage } from '../contexts/LanguageContext'
 
 function getMagnitudeColor(magnitude) {
   if (!Number.isFinite(magnitude)) return 'text-text-secondary'
@@ -10,35 +11,13 @@ function getMagnitudeColor(magnitude) {
   return 'text-red-400'
 }
 
-function formatValue(value, fallback = 'Unknown') {
+function formatValue(value, fallback) {
   return value === undefined || value === null || value === '' ? fallback : value
 }
 
-function formatDepth(quake) {
-  const depth = quake.Kedalaman ?? quake.depth
-  if (depth === undefined || depth === null || depth === '') return 'Unknown'
-  const depthText = String(depth).trim()
-  return /km$/i.test(depthText) ? depthText : `${depthText} km`
-}
-
-function formatDateTime(value) {
-  if (!value) return 'Unknown'
-
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date)
-}
-
-function hasTsunamiRisk(quake) {
-  const tsunamiText = `${quake.Potensi ?? ''} ${quake.tsunami ?? ''}`
-  return /tsunami/i.test(tsunamiText)
-}
-
 function DetailPanel({ quake, onClose }) {
+  const { t } = useLanguage()
+
   const [summary, setSummary] = useState('')
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [summaryError, setSummaryError] = useState('')
@@ -64,7 +43,7 @@ function DetailPanel({ quake, onClose }) {
         })
 
         if (!response.ok) {
-          throw new Error('Failed to load AI summary')
+          throw new Error(t('detail.loadingSummary'))
         }
 
         const data = await response.json()
@@ -72,10 +51,10 @@ function DetailPanel({ quake, onClose }) {
           ? data
           : data.summary ?? data.text ?? data.message ?? ''
 
-        setSummary(summaryText || 'No summary available.')
+        setSummary(summaryText || t('detail.noSummary'))
       } catch (error) {
         if (error.name !== 'AbortError') {
-          setSummaryError(error.message || 'Failed to load AI summary')
+          setSummaryError(error.message || t('detail.loadingSummary'))
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -98,20 +77,32 @@ function DetailPanel({ quake, onClose }) {
     const longitude = quake.longitude ?? quake.lng
     const coordinates = latitude !== undefined && latitude !== null && longitude !== undefined && longitude !== null
       ? `${latitude}, ${longitude}`
-      : 'Unknown'
+      : t('detail.unknown')
+
+    const depthVal = quake.Kedalaman ?? quake.depth
+    const depthText = depthVal === undefined || depthVal === null || depthVal === ''
+      ? t('detail.unknown')
+      : /km$/i.test(String(depthVal).trim()) ? String(depthVal).trim() : `${depthVal} km`
 
     return {
       magnitude: Number(quake.Magnitude ?? quake.magnitude ?? quake.mag),
       magnitudeLabel: formatValue(quake.Magnitude ?? quake.magnitude ?? quake.mag, 'N/A'),
-      location: formatValue(quake.Wilayah ?? quake.location ?? quake.place),
+      location: formatValue(quake.Wilayah ?? quake.location ?? quake.place, t('detail.unknown')),
       coordinates,
-      depth: formatDepth(quake),
-      dateTime: formatDateTime(quake.datetime ?? quake.time),
-      tsunamiRisk: hasTsunamiRisk(quake),
+      depth: depthText,
+      dateTime: quake.datetime ?? quake.time ? (() => {
+        const d = new Date(quake.datetime ?? quake.time)
+        return Number.isNaN(d.getTime()) ? t('detail.unknown') : d
+      })() : t('detail.unknown'),
+      tsunamiRisk: `${quake.Potensi ?? ''} ${quake.tsunami ?? ''}`.toLowerCase().includes('tsunami'),
     }
   }, [quake])
 
   if (!quake || !details) return null
+
+  const dateTimeDisplay = details.dateTime instanceof Date
+    ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(details.dateTime)
+    : details.dateTime
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 text-text-primary">
@@ -119,7 +110,7 @@ function DetailPanel({ quake, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close detail panel"
+          aria-label={t('detail.close')}
           className="absolute right-3 top-3 rounded-full border border-border bg-bg-primary/80 p-2 text-text-secondary transition hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-gold"
         >
           <X className="h-5 w-5" aria-hidden="true" />
@@ -127,7 +118,7 @@ function DetailPanel({ quake, onClose }) {
 
         <div className="overflow-y-auto p-6 pr-14">
           <div className="mb-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Magnitude</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">{t('detail.magnitude')}</p>
             <p className={`mt-1 text-6xl font-bold leading-none ${getMagnitudeColor(details.magnitude)}`}>
               {details.magnitudeLabel}
             </p>
@@ -135,36 +126,36 @@ function DetailPanel({ quake, onClose }) {
 
           <div className="space-y-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Location</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">{t('detail.location')}</p>
               <p className="mt-1 text-lg font-medium text-text-primary">{details.location}</p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-lg border border-border bg-bg-primary/50 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Coordinates</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">{t('detail.coordinates')}</p>
                 <p className="mt-1 text-sm text-text-primary">{details.coordinates}</p>
               </div>
               <div className="rounded-lg border border-border bg-bg-primary/50 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Depth</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">{t('detail.depth')}</p>
                 <p className="mt-1 text-sm text-text-primary">{details.depth}</p>
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Date & Time</p>
-              <p className="mt-1 text-sm text-text-primary">{details.dateTime}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">{t('detail.dateTime')}</p>
+              <p className="mt-1 text-sm text-text-primary">{dateTimeDisplay}</p>
             </div>
 
             <div>
               <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${details.tsunamiRisk ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'}`}>
-                {details.tsunamiRisk ? 'TSUNAMI RISK' : 'No Tsunami Threat'}
+                {details.tsunamiRisk ? t('detail.tsunamiRisk') : t('detail.noThreat')}
               </span>
             </div>
 
             {quake.id && (
               <section className="rounded-lg border border-border bg-bg-primary/50 p-4">
-                <h2 className="text-sm font-semibold text-text-primary">AI Summary</h2>
-                {summaryLoading && <p className="mt-2 text-sm text-text-secondary">Loading summary...</p>}
+                <h2 className="text-sm font-semibold text-text-primary">{t('detail.aiSummary')}</h2>
+                {summaryLoading && <p className="mt-2 text-sm text-text-secondary">{t('detail.loadingSummary')}</p>}
                 {!summaryLoading && summaryError && (
                   <p className="mt-2 text-sm text-red-300">{summaryError}</p>
                 )}
