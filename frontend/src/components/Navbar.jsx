@@ -1,10 +1,13 @@
 import React from 'react'
-import { Search, Bell } from 'lucide-react'
+import { Search, Bell, Menu } from 'lucide-react'
 
-function Navbar() {
+function Navbar({ onToggleSidebar }) {
   return (
     <nav className="flex items-center justify-between px-6 py-3 bg-bg-secondary border-b border-border h-14 shrink-0">
       <div className="flex items-center gap-2">
+        <button className="md:hidden p-1" onClick={onToggleSidebar}>
+          <Menu size={24} className="text-text-primary" />
+        </button>
         <span className="text-2xl">🌍</span>
         <h1 className="text-xl font-bold text-brand-red">TremorID</h1>
       </div>
