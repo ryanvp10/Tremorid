@@ -37,10 +37,11 @@ function App() {
 
         {/* Sidebar — slides from left on mobile, right on desktop */}
         <aside className={`
-          fixed md:static top-0 left-0 md:left-auto md:right-0 h-[calc(100vh-theme(spacing.12))] md:h-auto
+          fixed md:static top-0 left-0 md:left-auto md:right-0
+          h-[calc(100vh-theme(spacing.12))] md:h-full
           w-[85vw] max-w-[360px] md:w-[360px]
           bg-bg-secondary border-r md:border-r-0 md:border-l border-border
-          overflow-y-auto z-50 md:z-auto
+          overflow-y-auto z-50 md:z-auto shrink-0
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}>
