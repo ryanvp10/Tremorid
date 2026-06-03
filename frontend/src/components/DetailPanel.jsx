@@ -88,7 +88,7 @@ function DetailPanel({ quake, onClose }) {
     return {
       magnitude: Number(quake.Magnitude ?? quake.magnitude ?? quake.mag),
       magnitudeLabel: formatValue(quake.Magnitude ?? quake.magnitude ?? quake.mag, 'N/A'),
-      location: formatValue(parseWilayah(quake.Wilayah ?? quake.location ?? quake.place), t('detail.unknown')),
+      location: formatValue(parseWilayah(quake.Wilayah || quake.location || quake.place), t('detail.unknown')),
       coordinates,
       depth: depthText,
       dateTime: quake.datetime ?? quake.time ? (() => {
