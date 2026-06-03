@@ -19,7 +19,7 @@ function App() {
   }, [])
 
   return (
-    <div className="flex flex-col h-screen bg-bg-primary">
+    <div className="flex flex-col h-screen overflow-hidden bg-bg-primary" style={{ height: '100dvh' }}>
       <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
       <main className={`flex flex-1 overflow-hidden relative ${sidebarOpen ? 'md:overflow-hidden' : ''}`}>
         <div className={`flex-1 relative ${sidebarOpen ? 'pointer-events-none md:pointer-events-auto' : ''}`}>
