@@ -17,45 +17,33 @@ function Timeline() {
         const date = new Date(today)
         date.setDate(today.getDate() - (6 - index))
         const key = date.toISOString().slice(0, 10)
-
-        return {
-          key,
-          label: date.toLocaleDateString('en-US', { weekday: 'short' }),
-          day: date.getDate(),
-          count: 0,
-        }
+        return { key, label: date.toLocaleDateString('en-US', { weekday: 'short' }), count: 0 }
       })
 
-      const countsByDate = days.reduce((counts, day) => {
-        counts[day.key] = 0
-        return counts
-      }, {})
+      const countsByDate = days.reduce((c, d) => ({ ...c, [d.key]: 0 }), {})
 
-      quakes.forEach((quake) => {
-        if (!quake.datetime) return
-        const quakeDate = new Date(quake.datetime)
-        if (Number.isNaN(quakeDate.getTime())) return
-        const key = quakeDate.toISOString().slice(0, 10)
+      quakes.forEach((q) => {
+        if (!q.datetime) return
+        const d = new Date(q.datetime)
+        if (Number.isNaN(d.getTime())) return
+        const key = d.toISOString().slice(0, 10)
         if (key in countsByDate) countsByDate[key] += 1
       })
 
-      return days.map((day) => ({ ...day, count: countsByDate[day.key] }))
+      return days.map((d) => ({ ...d, count: countsByDate[d.key] }))
     }
 
     const fetchQuakes = async () => {
       try {
         setLoading(true)
         setError(null)
-        const response = await fetch(`${API_BASE}/quakes?limit=100`)
-        if (!response.ok) throw new Error('Unable to load')
-        const data = await response.json()
+        const res = await fetch(`${API_BASE}/quakes?limit=100`)
+        if (!res.ok) throw new Error('Unable to load')
+        const data = await res.json()
         const quakes = Array.isArray(data) ? data : data.quakes || []
         if (isMounted) setDailyCounts(buildLastSevenDays(quakes))
       } catch (err) {
-        if (isMounted) {
-          setError(err.message)
-          setDailyCounts(buildLastSevenDays())
-        }
+        if (isMounted) { setError(err.message); setDailyCounts(buildLastSevenDays()) }
       } finally {
         if (isMounted) setLoading(false)
       }
@@ -65,29 +53,31 @@ function Timeline() {
     return () => { isMounted = false }
   }, [])
 
-  const maxCount = Math.max(...dailyCounts.map((day) => day.count), 1)
+  const maxCount = Math.max(...dailyCounts.map((d) => d.count), 1)
 
   return (
-    <div className="bg-bg-secondary border-t border-border px-2 md:px-4 py-2 shrink-0">
-      <div className="flex items-center justify-between mb-1.5">
-        <h2 className="text-[10px] md:text-sm font-semibold text-text-primary">7-Day Activity</h2>
+    <div className="bg-bg-secondary border-t border-border px-3 md:px-4 py-2 shrink-0">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xs md:text-sm font-semibold text-text-primary">7-Day Activity</h2>
         {loading && <span className="text-[10px] text-text-secondary">Loading...</span>}
         {error && <span className="text-[10px] text-red-500">Error</span>}
       </div>
 
-      <div className="flex items-end justify-between gap-0.5 md:gap-2">
+      <div className="grid grid-cols-7 gap-1 md:gap-2">
         {dailyCounts.map((day) => {
-          const barHeight = Math.max((day.count / maxCount) * 40, day.count > 0 ? 3 : 1)
+          const pct = maxCount > 0 ? (day.count / maxCount) * 100 : 0
+          const barH = Math.max(pct, 8)
 
           return (
-            <div key={day.key} className="flex-1 flex flex-col items-center justify-end" style={{ height: '56px' }}>
-              <span className="text-[9px] md:text-xs text-text-primary leading-none mb-0.5">{day.count}</span>
-              <div
-                className="w-full max-w-[20px] md:max-w-8 rounded-t bg-blue-500"
-                style={{ height: `${barHeight}px` }}
-              />
-              <span className="text-[8px] md:text-xs text-text-secondary leading-none mt-0.5">{day.label}</span>
-              <span className="text-[7px] md:text-[10px] text-text-secondary leading-none">{day.day}</span>
+            <div key={day.key} className="flex flex-col items-center">
+              <span className="text-[10px] md:text-xs text-text-primary font-medium mb-1">{day.count}</span>
+              <div className="w-full bg-bg-primary rounded-sm overflow-hidden" style={{ height: '32px' }}>
+                <div
+                  className="w-full bg-blue-500 rounded-sm transition-all duration-300"
+                  style={{ height: `${barH}%`, marginTop: `${100 - barH}%` }}
+                />
+              </div>
+              <span className="text-[9px] md:text-xs text-text-secondary mt-1">{day.label}</span>
             </div>
           )
         })}
