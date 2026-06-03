@@ -12,7 +12,12 @@ const app = express()
 const PORT = parseInt(process.env.PORT || '7860', 10)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5173', 'http://localhost:3000']
+  : [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://tremorid.netlify.app',
+      'https://www.tremorid.netlify.app',
+    ]
 
 // CORS
 app.use(cors({ origin: allowedOrigins }))
