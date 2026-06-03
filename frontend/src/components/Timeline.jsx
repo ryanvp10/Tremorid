@@ -58,17 +58,17 @@ function Timeline() {
   const maxCount = Math.max(...dailyCounts.map((d) => d.count), 1)
 
   return (
-    <footer style={{ flex: '0 0 auto', height: '140px' }} className="bg-bg-secondary border-t border-border">
-      <div className="h-full px-4 py-2 flex flex-col">
+    <footer style={{ flex: '0 0 auto', height: '180px' }} className="bg-bg-secondary border-t border-border">
+      <div className="h-full px-4 py-3 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-xs font-semibold text-text-primary">7-Day Activity</h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-semibold text-text-primary">7-Day Activity</h2>
           {loading && <span className="text-[10px] text-text-secondary">Loading...</span>}
           {error && <span className="text-[10px] text-red-500">Error</span>}
         </div>
 
         {/* Bar chart grid */}
-        <div className="grid grid-cols-7 gap-1.5 flex-1 min-h-0">
+        <div className="grid grid-cols-7 gap-2 flex-1 min-h-0">
           {dailyCounts.map((day) => {
             const pct = maxCount > 0 ? (day.count / maxCount) * 100 : 0
             const barH = Math.max(pct, 6)
@@ -79,7 +79,7 @@ function Timeline() {
                 <span className="text-[10px] text-text-primary font-medium leading-none mb-1">{day.count}</span>
 
                 {/* Bar */}
-                <div className="w-full rounded-sm overflow-hidden bg-bg-primary" style={{ height: '56px' }}>
+                <div className="w-full rounded-sm overflow-hidden bg-bg-primary" style={{ height: '72px' }}>
                   <div
                     className="w-full bg-blue-500 rounded-sm"
                     style={{ height: `${barH}%`, marginTop: `${100 - barH}%` }}
