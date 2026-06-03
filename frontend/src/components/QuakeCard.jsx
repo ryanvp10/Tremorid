@@ -13,7 +13,8 @@ function formatDatetime(datetime) {
 
   if (localDateMatch) {
     const [, year, month, day, hour, minute] = localDateMatch
-    return `${day}/${month}/${year}, ${hour}:${minute} WIB`
+    const monthName = new Date(Number(year), Number(month) - 1).toLocaleDateString('en-US', { month: 'short' })
+    return `${monthName} ${Number(day)}, ${year} ${hour}:${minute} WIB`
   }
 
   const date = new Date(datetime)
@@ -22,21 +23,15 @@ function formatDatetime(datetime) {
     return `${rawValue} WIB`
   }
 
-  const parts = new Intl.DateTimeFormat('en-GB', {
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: 'Asia/Jakarta',
-    day: '2-digit',
-    month: '2-digit',
+    month: 'short',
+    day: 'numeric',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-  }).formatToParts(date)
-
-  const getPart = (type) => parts.find((part) => part.type === type)?.value
-
-  return `${getPart('day')}/${getPart('month')}/${getPart('year')}, ${getPart(
-    'hour'
-  )}:${getPart('minute')} WIB`
+  }).format(date) + ' WIB'
 }
 
 function getMagnitudeColor(magnitude) {
