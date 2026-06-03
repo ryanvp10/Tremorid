@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { API_BASE } from '../services/api'
 
 function Timeline() {
   const [dailyCounts, setDailyCounts] = useState([])
@@ -55,7 +56,7 @@ function Timeline() {
         setLoading(true)
         setError(null)
 
-        const response = await fetch('/api/quakes?limit=100')
+        const response = await fetch(`${API_BASE}/quakes?limit=100`)
         if (!response.ok) {
           throw new Error('Unable to load earthquake activity')
         }
@@ -88,26 +89,26 @@ function Timeline() {
   const maxCount = Math.max(...dailyCounts.map((day) => day.count), 1)
 
   return (
-    <div className="bg-bg-secondary border-t border-border px-4 py-3 shrink-0">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-text-primary">7-Day Activity</h2>
+    <div className="bg-bg-secondary border-t border-border px-3 md:px-4 py-2 md:py-3 shrink-0">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xs md:text-sm font-semibold text-text-primary">7-Day Activity</h2>
         {loading && <span className="text-xs text-text-secondary">Loading...</span>}
-        {error && <span className="text-xs text-red-500">{error}</span>}
+        {error && <span className="text-xs text-red-500">Error</span>}
       </div>
 
-      <div className="flex items-end justify-between gap-3 h-28">
+      <div className="flex items-end justify-between gap-1 md:gap-3" style={{ height: '100px' }}>
         {dailyCounts.map((day) => {
-          const height = Math.max((day.count / maxCount) * 80, day.count > 0 ? 6 : 2)
+          const height = Math.max((day.count / maxCount) * 60, day.count > 0 ? 4 : 2)
 
           return (
-            <div key={day.key} className="flex flex-1 flex-col items-center justify-end h-full">
-              <span className="text-xs text-text-primary mb-1">{day.count}</span>
+            <div key={day.key} className="flex flex-1 flex-col items-center justify-end" style={{ height: '100%' }}>
+              <span className="text-[10px] md:text-xs text-text-primary mb-1">{day.count}</span>
               <div
-                className="w-full max-w-8 rounded-t bg-blue-600 transition-all"
+                className="w-full max-w-6 md:max-w-8 rounded-t bg-blue-600 transition-all"
                 style={{ height: `${height}px` }}
                 aria-label={`${day.label}: ${day.count} earthquakes`}
               />
-              <span className="text-xs text-text-secondary mt-2 whitespace-nowrap">{day.label}</span>
+              <span className="text-[8px] md:text-xs text-text-secondary mt-1 whitespace-nowrap truncate w-full text-center">{day.label}</span>
             </div>
           )
         })}
