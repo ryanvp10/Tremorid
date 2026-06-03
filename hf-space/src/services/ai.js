@@ -1,54 +1,14 @@
-// AI service — HuggingFace Inference API (free, no IP limits)
-// Falls back to Freemodel.dev if HF_API_KEY not set
-
-function getApiKey() {
-  // HF_TOKEN is auto-injected by HF Spaces; FREEMODEL_API_KEY as fallback
-  const key = process.env.HF_TOKEN || process.env.HF_API_KEY || process.env.FREEMODEL_API_KEY
-  if (!key) throw new Error('HF_TOKEN, HF_API_KEY, or FREEMODEL_API_KEY not set')
-  return key
-}
+// AI service — Freemodel.dev (gpt-5.5)
 
 async function askAI(messages) {
-  const apiKey = getApiKey()
-  try {
-    // Use HF Inference API — free, no IP-based account limits
-    const res = await fetch(
-      'https://api-inference.huggingface.co/models/meta-llama/Llama-3.1-8B-Instruct/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          messages,
-          max_tokens: 512,
-          temperature: 0.2,
-        }),
-      }
-    )
-    const data = await res.json()
-    if (!res.ok) {
-      // Fallback to Freemodel.dev if HF fails
-      if (process.env.FREEMODEL_API_KEY) {
-        console.log('[ai.js] HF Inference failed, trying Freemodel.dev fallback')
-        return askAIFreemodel(messages)
-      }
-      throw new Error(data.error?.message || `HTTP ${res.status}`)
-    }
-    return data.choices[0].message.content
-  } catch (err) {
-    console.error('[ai.js] askAI error:', err.message)
-    throw err
-  }
-}
+  const apiKey = process.env.FREEMODEL_API_KEY
+  if (!apiKey) throw new Error('FREEMODEL_API_KEY not set')
 
-async function askAIFreemodel(messages) {
   const res = await fetch('https://api.freemodel.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.FREEMODEL_API_KEY}`,
+      'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model: 'gpt-5.5',
@@ -61,7 +21,6 @@ async function askAIFreemodel(messages) {
   return data.choices[0].message.content
 }
 
-// eslint-disable-next-line no-unused-vars
 async function generateChatResponse(userMessage, quakeContext) {
   const now = new Date().toISOString()
   const systemPrompt = `You are TremorID, an earthquake information assistant for Indonesia powered by real BMKG data.
