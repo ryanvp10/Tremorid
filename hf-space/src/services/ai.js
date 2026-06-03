@@ -1,33 +1,41 @@
-// AI service — freemodel.dev API wrapper for TremorID earthquake bot
+// AI service — HuggingFace Inference API (free, no IP limits)
+// Falls back to Freemodel.dev if HF_API_KEY not set
 
 function getApiKey() {
-  const key = process.env.FREEMODEL_API_KEY
-  if (!key) throw new Error('FREEMODEL_API_KEY not set')
+  // HF_TOKEN is auto-injected by HF Spaces; FREEMODEL_API_KEY as fallback
+  const key = process.env.HF_TOKEN || process.env.HF_API_KEY || process.env.FREEMODEL_API_KEY
+  if (!key) throw new Error('HF_TOKEN, HF_API_KEY, or FREEMODEL_API_KEY not set')
   return key
 }
 
-/**
- * Generic chat completion call.
- * @param {{role: string, content: string}[]} messages
- * @returns {Promise<string>} assistant reply text
- */
 async function askAI(messages) {
   const apiKey = getApiKey()
   try {
-    const res = await fetch('https://api.freemodel.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-5.5',
-        messages,
-        temperature: 0.2,
-      }),
-    })
+    // Use HF Inference API — free, no IP-based account limits
+    const res = await fetch(
+      'https://api-inference.huggingface.co/models/meta-llama/Llama-3.1-8B-Instruct/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          messages,
+          max_tokens: 512,
+          temperature: 0.2,
+        }),
+      }
+    )
     const data = await res.json()
-    if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`)
+    if (!res.ok) {
+      // Fallback to Freemodel.dev if HF fails
+      if (process.env.FREEMODEL_API_KEY) {
+        console.log('[ai.js] HF Inference failed, trying Freemodel.dev fallback')
+        return askAIFreemodel(messages)
+      }
+      throw new Error(data.error?.message || `HTTP ${res.status}`)
+    }
     return data.choices[0].message.content
   } catch (err) {
     console.error('[ai.js] askAI error:', err.message)
@@ -35,12 +43,25 @@ async function askAI(messages) {
   }
 }
 
-/**
- * Generate a conversational reply for the Telegram bot.
- * @param {string} userMessage  - raw user text (Indonesian or English)
- * @param {string} quakeContext - pre-formatted string of the last 10 earthquakes
- * @returns {Promise<string>} reply in English
- */
+async function askAIFreemodel(messages) {
+  const res = await fetch('https://api.freemodel.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.FREEMODEL_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-5.5',
+      messages,
+      temperature: 0.2,
+    }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`)
+  return data.choices[0].message.content
+}
+
+// eslint-disable-next-line no-unused-vars
 async function generateChatResponse(userMessage, quakeContext) {
   const now = new Date().toISOString()
   const systemPrompt = `You are TremorID, an earthquake information assistant for Indonesia powered by real BMKG data.
@@ -79,11 +100,6 @@ Current datetime: ${now}`
   ])
 }
 
-/**
- * Generate a brief 1-2 sentence public summary for a single earthquake.
- * @param {{magnitude, depth, location, datetime, tsunami, felt}} quake
- * @returns {Promise<string>} English summary
- */
 async function generateQuakeSummary(quake) {
   const systemPrompt =
     'Write a brief 1-2 sentence English summary of this earthquake for the Indonesian public. Include magnitude, location, depth, and tsunami potential. Keep it clear and calm.'

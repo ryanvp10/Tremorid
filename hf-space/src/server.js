@@ -1,4 +1,7 @@
-require('dotenv').config()
+// HF Spaces injects env vars via secrets — dotenv not needed in production
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
 const express = require('express')
 const cors = require('cors')
 const quakeRoutes = require('./routes/quakes')
@@ -37,11 +40,22 @@ app.get('/api/health', (req, res) => {
 // Telegram webhook (polling mode used on HF Spaces, webhook for production)
 app.post('/api/telegram/webhook', validateWebhookSecret, getBotWebhookHandler())
 
-// Start Telegram bot (long-polling for dev, webhook for production)
-bot.launch().then(() => console.log('[BOT] Telegram bot polling started'))
+// Start Telegram bot (only if token is set)
+if (process.env.TELEGRAM_BOT_TOKEN) {
+  bot.launch().then(() => console.log('[BOT] Telegram bot polling started'))
+    .catch(err => console.error('[BOT] Failed to start:', err.message))
+} else {
+  console.log('[BOT] No TELEGRAM_BOT_SET, skipping bot')
+}
 
-// Start BMKG fetcher (every 5 min)
-const bmkgTimer = startBmkgFetcher()
+// Start BMKG fetcher (only if not disabled)
+if (process.env.DISABLE_BMKG !== '1') {
+  try {
+    const bmkgTimer = startBmkgFetcher()
+  } catch (err) {
+    console.error('[BMKG] Failed to start:', err.message)
+  }
+}
 
 // Start server
 const server = app.listen(PORT, () => {
@@ -50,8 +64,8 @@ const server = app.listen(PORT, () => {
 
 const shutdown = (signal) => {
   console.log(`Received ${signal}, shutting down gracefully`)
-  bot.stop(signal)
-  stopBmkgFetcher()
+  try { bot.stop(signal) } catch (e) { /* bot may not have started */ }
+  try { stopBmkgFetcher() } catch (e) { /* fetcher may not have started */ }
   server.close(() => {
     process.exit(0)
   })
