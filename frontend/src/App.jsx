@@ -9,16 +9,6 @@ function App() {
   const [filters, setFilters] = useState({})
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  // Lock body scroll on mobile when sidebar is open
-  useEffect(() => {
-    if (sidebarOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => { document.body.style.overflow = '' }
-  }, [sidebarOpen])
-
   // Close sidebar on resize to desktop
   useEffect(() => {
     const handleResize = () => {
@@ -29,10 +19,10 @@ function App() {
   }, [])
 
   return (
-    <div className="flex flex-col h-screen bg-bg-primary overflow-x-hidden">
-      <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <main className="flex flex-1 overflow-hidden relative">
-        <div className="flex-1 relative">
+    <div className="flex flex-col h-screen bg-bg-primary">
+      <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
+      <main className={`flex flex-1 overflow-hidden relative ${sidebarOpen ? 'md:overflow-hidden' : ''}`}>
+        <div className={`flex-1 relative ${sidebarOpen ? 'pointer-events-none md:pointer-events-auto' : ''}`}>
           <Map3D />
         </div>
 
@@ -41,15 +31,16 @@ function App() {
           <div
             className="fixed inset-0 bg-black/50 z-40 md:hidden"
             onClick={() => setSidebarOpen(false)}
+            style={{ touchAction: 'none' }}
           />
         )}
 
         {/* Sidebar — slides from left on mobile, right on desktop */}
         <aside className={`
-          fixed md:static top-0 left-0 md:left-auto md:right-0 h-full md:h-auto
+          fixed md:static top-0 left-0 md:left-auto md:right-0 h-[calc(100vh-theme(spacing.12))] md:h-auto
           w-[85vw] max-w-[360px] md:w-[360px]
           bg-bg-secondary border-r md:border-r-0 md:border-l border-border
-          overflow-y-auto z-50
+          overflow-y-auto z-50 md:z-auto
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}>
