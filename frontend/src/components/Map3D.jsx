@@ -85,7 +85,7 @@ function Map3D() {
             },
             description: `
               <div>
-                <div>Location: ${formatInfoValue(quake.location)}</div>
+                <div>Location: ${formatInfoValue(parseWilayah(quake.Wilayah || quake.location))}</div>
                 <div>Magnitude: ${formatInfoValue(quake.magnitude)}</div>
                 <div>Depth: ${formatInfoValue(quake.depth)}</div>
                 <div>Datetime: ${formatInfoValue(quake.datetime)}</div>
