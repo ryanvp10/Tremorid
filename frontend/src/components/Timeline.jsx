@@ -58,37 +58,37 @@ function Timeline() {
   const maxCount = Math.max(...dailyCounts.map((d) => d.count), 1)
 
   return (
-    <div className="bg-bg-secondary border-t border-border px-3 md:px-4 py-2 shrink-0">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="text-xs md:text-sm font-semibold text-text-primary">7-Day Activity</h2>
-        {loading && <span className="text-[10px] text-text-secondary">Loading...</span>}
-        {error && <span className="text-[10px] text-red-500">Error</span>}
+    <div className="bg-bg-secondary border-t border-border px-2 pb-1 shrink-0">
+      {/* Header row */}
+      <div className="flex items-center justify-between px-1 pt-1 mb-0.5">
+        <h2 className="text-[10px] font-semibold text-text-primary">7-Day</h2>
+        {loading && <span className="text-[8px] text-text-secondary">...</span>}
+        {error && <span className="text-[8px] text-red-500">err</span>}
       </div>
 
-      {/* 7 columns: count + bar + weekday + date */}
-      <div className="grid grid-cols-7 gap-1 md:gap-2">
+      {/* Single row grid: each cell = count + bar + labels */}
+      <div className="grid grid-cols-7 gap-0.5">
         {dailyCounts.map((day) => {
           const pct = maxCount > 0 ? (day.count / maxCount) * 100 : 0
-          const barH = Math.max(pct, 6)
+          const barH = Math.max(pct, 5)
 
           return (
-            <div key={day.key} className="flex flex-col items-center justify-end h-16 md:h-20">
-              {/* Count number */}
-              <span className="text-[10px] md:text-xs text-text-primary font-medium leading-tight">{day.count}</span>
+            <div key={day.key} className="flex flex-col items-center" style={{ height: '52px' }}>
+              {/* Count */}
+              <span className="text-[9px] text-text-primary font-medium leading-none shrink-0">{day.count}</span>
 
-              {/* Bar */}
-              <div className="w-full bg-bg-primary rounded-sm overflow-hidden h-7 md:h-9 mt-0.5">
+              {/* Bar area — fills remaining space */}
+              <div className="w-full bg-bg-primary rounded-sm overflow-hidden mt-0.5 flex-1 min-h-0">
                 <div
-                  className="w-full bg-blue-500 rounded-sm transition-all duration-300"
+                  className="w-full bg-blue-500 rounded-sm"
                   style={{ height: `${barH}%`, marginTop: `${100 - barH}%` }}
                 />
               </div>
 
-              {/* Labels stacked below bar */}
-              <div className="flex flex-col items-center leading-tight mt-0.5">
-                <span className="text-[9px] md:text-[10px] text-text-secondary whitespace-nowrap">{day.weekday}</span>
-                <span className="text-[9px] md:text-[10px] text-text-secondary whitespace-nowrap">{day.date}</span>
+              {/* Labels — fixed height, never shrink */}
+              <div className="shrink-0 mt-0.5 text-center leading-[1.1]">
+                <div className="text-[7px] text-text-secondary">{day.weekday}</div>
+                <div className="text-[7px] text-text-secondary">{day.date}</div>
               </div>
             </div>
           )
