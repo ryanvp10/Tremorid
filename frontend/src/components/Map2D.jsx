@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { API_BASE } from '../services/api'
-import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet'
+import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { formatDate } from '../utils/formatDate'
 
@@ -84,9 +84,9 @@ function Map2D() {
             radius={Math.max(magnitude * 2, 4)}
             pathOptions={{ color, fillColor: color, fillOpacity: 0.75 }}
           >
+            <Tooltip>Detail</Tooltip>
             <Popup>
               <div>
-                <p className="font-bold text-sm mb-1">Detail</p>
                 <div>Location: {quake.location ?? quake.place ?? quake.wilayah ?? '-'}</div>
                 <div>Magnitude: {quake.magnitude ?? quake.mag ?? quake.Magnitude ?? '-'}</div>
                 <div>Depth: {quake.depth ?? quake.Depth ?? quake.kedalaman ?? '-'}</div>
