@@ -31,16 +31,13 @@ function Map3D() {
     if (!containerRef.current) return undefined
 
     let isMounted = true
-    const darkImagery = new UrlTemplateImageryProvider({
-      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-      subdomains: ['a', 'b', 'c', 'd'],
-      credit: new Credit(
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      ),
+    const mapImagery = new UrlTemplateImageryProvider({
+      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      credit: new Credit('&copy; OpenStreetMap contributors'),
     })
 
     const viewer = new Viewer(containerRef.current, {
-      baseLayer: new ImageryLayer(darkImagery),
+      baseLayer: new ImageryLayer(mapImagery),
       timeline: false,
       animation: false,
       baseLayerPicker: false,
@@ -57,7 +54,7 @@ function Map3D() {
 
     async function fetchQuakes() {
       try {
-        const response = await fetch('http://localhost:3000/api/quakes')
+        const response = await fetch('/api/quakes')
         if (!response.ok) return
 
         const quakes = await response.json()
