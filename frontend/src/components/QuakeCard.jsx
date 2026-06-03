@@ -6,15 +6,11 @@ function formatDatetime(datetime) {
   if (!datetime) return '-'
 
   const rawValue = String(datetime).trim()
-  const hasExplicitTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(rawValue)
-  const localDateMatch = !hasExplicitTimezone
-    ? rawValue.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/)
-    : null
+  const match = rawValue.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/)
 
-  if (localDateMatch) {
-    const [, year, month, day, hour, minute] = localDateMatch
-    const monthName = new Date(Number(year), Number(month) - 1).toLocaleDateString('en-US', { month: 'short' })
-    return `${monthName} ${Number(day)}, ${year} ${hour}:${minute} WIB`
+  if (match) {
+    const [, , month, day, hour, minute] = match
+    return `${day}/${month}/${match[1]}, ${hour}:${minute} WIB`
   }
 
   const date = new Date(datetime)
@@ -23,15 +19,14 @@ function formatDatetime(datetime) {
     return `${rawValue} WIB`
   }
 
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Jakarta',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(date) + ' WIB'
+  const d = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }))
+  const dd = String(d.getDate()).padStart(2, '0')
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const yyyy = d.getFullYear()
+  const hh = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+
+  return `${dd}/${mm}/${yyyy}, ${hh}:${min} WIB'
 }
 
 function getMagnitudeColor(magnitude) {

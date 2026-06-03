@@ -29,21 +29,20 @@ function formatInfoValue(value) {
 function formatTooltipDate(datetime) {
   if (!datetime) return '-'
   const raw = String(datetime).trim()
-  // Match BMKG format: 2026-05-29 14:30:00
   const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/)
   if (match) {
     const [, year, month, day, hour, minute] = match
-    const monthName = new Date(Number(year), Number(month) - 1).toLocaleDateString('en-US', { month: 'short' })
-    return `${monthName} ${Number(day)}, ${year} ${hour}:${minute} WIB`
+    return `${day}/${month}/${year}, ${hour}:${minute} WIB`
   }
-  // Fallback: try parsing as date
   const date = new Date(raw)
   if (!Number.isNaN(date.getTime())) {
-    return new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Jakarta',
-      month: 'short', day: 'numeric', year: 'numeric',
-      hour: '2-digit', minute: '2-digit', hour12: false,
-    }).format(date) + ' WIB'
+    const d = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }))
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const yyyy = d.getFullYear()
+    const hh = String(d.getHours()).padStart(2, '0')
+    const min = String(d.getMinutes()).padStart(2, '0')
+    return `${dd}/${mm}/${yyyy}, ${hh}:${min} WIB`
   }
   return raw
 }
