@@ -33,8 +33,8 @@ function Map3D() {
 
     let isMounted = true
     const mapImagery = new UrlTemplateImageryProvider({
-      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      credit: new Credit('&copy; OpenStreetMap contributors'),
+      url: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+      credit: new Credit('&copy; CartoDB &copy; OpenStreetMap contributors'),
     })
 
     const viewer = new Viewer(containerRef.current, {
