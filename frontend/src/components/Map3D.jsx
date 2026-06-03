@@ -50,7 +50,7 @@ function Map3D() {
     })
 
     viewer.camera.setView({
-      destination: Cartesian3.fromDegrees(118, -2, 20000000),
+      destination: Cartesian3.fromDegrees(118, -2, 6000000),
     })
 
     async function fetchQuakes() {
