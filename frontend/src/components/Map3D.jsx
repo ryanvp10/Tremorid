@@ -8,6 +8,7 @@ import {
   Viewer,
 } from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
+import { API_BASE } from '../services/api'
 
 function getMagnitudeColor(magnitude) {
   if (magnitude >= 5) return Color.RED
@@ -54,7 +55,7 @@ function Map3D() {
 
     async function fetchQuakes() {
       try {
-        const response = await fetch('/api/quakes')
+        const response = await fetch(`${API_BASE}/quakes`)
         if (!response.ok) return
 
         const quakes = await response.json()
