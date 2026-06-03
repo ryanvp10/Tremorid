@@ -1,5 +1,6 @@
 import React from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
+import { parseWilayah } from '../lib/parseWilayah'
 
 function formatDatetime(datetime) {
   if (!datetime) return '-'
@@ -50,7 +51,8 @@ function QuakeCard({ quake }) {
   const { t } = useLanguage()
   if (!quake) return null
 
-  const { datetime, magnitude, depth, location, tsunami } = quake
+  const { datetime, magnitude, depth, location, tsunami, Wilayah } = quake
+  const displayLocation = parseWilayah(Wilayah) || location || 'Unknown location'
   const hasTsunamiPotential = String(tsunami || '')
     .toLowerCase()
     .includes('potensi')
@@ -59,7 +61,7 @@ function QuakeCard({ quake }) {
     <article className="rounded-lg border border-border bg-bg-card p-4 text-text-primary shadow-lg">
       <div className="mb-3 flex items-start justify-between gap-3">
         <h3 className="text-base font-semibold leading-snug">
-          {location || 'Unknown location'}
+          {displayLocation}
         </h3>
 
         {hasTsunamiPotential && (

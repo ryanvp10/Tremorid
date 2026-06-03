@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { X } from 'lucide-react'
+import { parseWilayah } from '../lib/parseWilayah'
 import { API_BASE } from '../services/api'
 import { useLanguage } from '../contexts/LanguageContext'
 
@@ -87,7 +88,7 @@ function DetailPanel({ quake, onClose }) {
     return {
       magnitude: Number(quake.Magnitude ?? quake.magnitude ?? quake.mag),
       magnitudeLabel: formatValue(quake.Magnitude ?? quake.magnitude ?? quake.mag, 'N/A'),
-      location: formatValue(quake.Wilayah ?? quake.location ?? quake.place, t('detail.unknown')),
+      location: formatValue(parseWilayah(quake.Wilayah ?? quake.location ?? quake.place), t('detail.unknown')),
       coordinates,
       depth: depthText,
       dateTime: quake.datetime ?? quake.time ? (() => {

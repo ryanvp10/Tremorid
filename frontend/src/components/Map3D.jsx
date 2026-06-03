@@ -8,6 +8,7 @@ import {
   Viewer,
 } from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
+import { parseWilayah } from '../lib/parseWilayah'
 import { API_BASE } from '../services/api'
 
 function getMagnitudeColor(magnitude) {
@@ -74,7 +75,7 @@ function Map3D() {
 
           viewer.entities.add({
             id: quake.id ?? `quake-${index}`,
-            name: quake.location ?? 'Earthquake',
+            name: parseWilayah(quake.Wilayah) ?? quake.location ?? 'Earthquake',
             position: Cartesian3.fromDegrees(longitude, latitude),
             point: {
               pixelSize: pointSize,
