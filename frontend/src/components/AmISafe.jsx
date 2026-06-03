@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { API_BASE } from '../services/api'
 
 const MAJOR_CITIES = [
   { name: 'Jakarta', latitude: -6.21, longitude: 106.85 },
@@ -184,7 +185,7 @@ function AmISafe() {
     setError('')
 
     try {
-      const response = await fetch('/api/quakes?limit=50')
+      const response = await fetch(`${API_BASE}/quakes?limit=50`)
 
       if (!response.ok) {
         throw new Error('Unable to fetch recent earthquake data.')

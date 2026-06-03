@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { API_BASE } from '../services/api'
 import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -39,7 +40,7 @@ function Map2D() {
 
     async function fetchQuakes() {
       try {
-        const response = await fetch('http://localhost:3000/api/quakes')
+        const response = await fetch(`${API_BASE}/quakes`)
         const data = await response.json()
 
         if (isMounted) {
