@@ -22,10 +22,11 @@ function checkAiRateLimit(clientIp) {
   return true;
 }
 
-// GET /api/quakes — all recent quakes (last 100)
+// GET /api/quakes — all recent quakes (last 100) with optional filters
 router.get('/', (req, res) => {
   try {
-    const quakes = getAllQuakes(100)
+    const { minMag, maxMag, maxDepth } = req.query
+    const quakes = getAllQuakes(100, { minMag, maxMag, maxDepth })
     res.json(quakes)
   } catch (err) {
     console.error('[quakes] list error:', err.message)

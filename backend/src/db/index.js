@@ -42,10 +42,29 @@ db.exec(`
 `)
 
 // Earthquake functions
-function getAllQuakes(limit = 100) {
-  return db.prepare(
-    'SELECT * FROM earthquakes ORDER BY datetime DESC LIMIT ?'
-  ).all(limit)
+function getAllQuakes(limit = 100, filters = {}) {
+  const { minMag, maxMag, maxDepth } = filters
+  const conditions = []
+  const params = []
+
+  if (minMag !== undefined && minMag !== '') {
+    conditions.push('magnitude >= ?')
+    params.push(parseFloat(minMag))
+  }
+  if (maxMag !== undefined && maxMag !== '') {
+    conditions.push('magnitude <= ?')
+    params.push(parseFloat(maxMag))
+  }
+  if (maxDepth !== undefined && maxDepth !== '') {
+    conditions.push('depth <= ?')
+    params.push(parseFloat(maxDepth))
+  }
+
+  const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''
+  const query = `SELECT * FROM earthquakes ${whereClause} ORDER BY datetime DESC LIMIT ?`
+  params.push(limit)
+
+  return db.prepare(query).all(...params)
 }
 
 function getLatestQuake() {
