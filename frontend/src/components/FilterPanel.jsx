@@ -15,6 +15,7 @@ function FilterPanel({ onFiltersChange }) {
     setMinMag('')
     setMaxMag('')
     setMaxDepth('')
+    onFiltersChange({})
   }
 
   return (
