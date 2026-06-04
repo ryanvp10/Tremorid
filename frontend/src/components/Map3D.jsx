@@ -76,7 +76,7 @@ function Map3D() {
 
           viewer.entities.add({
             id: quake.id ?? `quake-${index}`,
-            name: parseWilayah(quake.Wilayah || quake.location) ?? 'Earthquake',
+            name: 'Detail',
             position: Cartesian3.fromDegrees(longitude, latitude),
             point: {
               pixelSize: pointSize,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { API_BASE } from '../services/api'
-import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet'
+import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
 function getMagnitudeColor(magnitude) {
@@ -83,6 +83,7 @@ function Map2D() {
             radius={Math.max(magnitude * 2, 4)}
             pathOptions={{ color, fillColor: color, fillOpacity: 0.75 }}
           >
+            <Tooltip>Detail</Tooltip>
             <Popup>
               <div>
                 <div>Location: {quake.location ?? quake.place ?? quake.wilayah ?? '-'}</div>
