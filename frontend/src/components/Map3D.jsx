@@ -11,6 +11,7 @@ import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { parseWilayah } from '../lib/parseWilayah'
 import { API_BASE } from '../services/api'
 import { formatDate } from '../utils/formatDate'
+import { useLanguage } from '../contexts/LanguageContext'
 
 function getMagnitudeColor(magnitude) {
   if (magnitude >= 5) return Color.RED
@@ -29,6 +30,7 @@ function formatInfoValue(value) {
 
 function Map3D() {
   const containerRef = useRef(null)
+  const { lang } = useLanguage()
 
   useEffect(() => {
     if (!containerRef.current) return undefined
@@ -86,7 +88,7 @@ function Map3D() {
             },
             description: `
               <div>
-                <div>Location: ${formatInfoValue(parseWilayah(quake.Wilayah || quake.location))}</div>
+                <div>Location: ${formatInfoValue(parseWilayah(quake.Wilayah || quake.location, lang))}</div>
                 <div>Magnitude: ${formatInfoValue(quake.magnitude)}</div>
                 <div>Depth: ${formatInfoValue(quake.depth)}</div>
                 <div>Datetime: ${formatDate(quake.datetime)}</div>
