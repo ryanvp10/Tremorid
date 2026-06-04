@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { API_BASE } from '../services/api'
 import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import { formatDate } from '../utils/formatDate'
 
 function getMagnitudeColor(magnitude) {
   const value = Number(magnitude)
@@ -89,7 +90,7 @@ function Map2D() {
                 <div>Location: {quake.location ?? quake.place ?? quake.wilayah ?? '-'}</div>
                 <div>Magnitude: {quake.magnitude ?? quake.mag ?? quake.Magnitude ?? '-'}</div>
                 <div>Depth: {quake.depth ?? quake.Depth ?? quake.kedalaman ?? '-'}</div>
-                <div>Datetime: {quake.datetime ?? quake.time ?? quake.dateTime ?? '-'}</div>
+                <div>Datetime: {formatDate(quake.datetime ?? quake.time)}</div>
               </div>
             </Popup>
           </CircleMarker>
