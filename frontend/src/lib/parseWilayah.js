@@ -27,8 +27,9 @@ export function parseWilayah(wilayah, lang) {
   const text = wilayah.trim()
 
   // Match: "... darat X km direction Location" (on land)
+  // Longer directions first so "barat laut" matches before "barat"
   const landMatch = text.match(
-    /darat\s+(\d+(?:\.\d+)?)\s*km\s+(utara|selatan|barat|timur|barat daya|tenggara|timur laut|barat laut)\s+(.+)/i
+    /darat\s+(\d+(?:\.\d+)?)\s*km\s+(barat laut|barat daya|timur laut|tenggara|utara|selatan|barat|timur)\s+(.+)/i
   )
   if (landMatch) {
     const dist = landMatch[1]
@@ -41,7 +42,7 @@ export function parseWilayah(wilayah, lang) {
 
   // Match: "... laut X km direction Location" (at sea)
   const seaMatch = text.match(
-    /laut\s+(\d+(?:\.\d+)?)\s*km\s+(utara|selatan|barat|timur|barat daya|tenggara|timur laut|barat laut)\s+(.+)/i
+    /laut\s+(\d+(?:\.\d+)?)\s*km\s+(barat laut|barat daya|timur laut|tenggara|utara|selatan|barat|timur)\s+(.+)/i
   )
   if (seaMatch) {
     const dist = seaMatch[1]
@@ -71,7 +72,7 @@ function addOfPreposition(text) {
 }
 
 function capitalize(s) {
-  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
+  return s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
 }
 
 function cleanLoc(s) {
