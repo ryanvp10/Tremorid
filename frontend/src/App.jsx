@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
 import Map3D from './components/Map3D'
-import ErrorBoundary from './components/ErrorBoundary'
 import QuakeList from './components/QuakeList'
 import FilterPanel from './components/FilterPanel'
 import Timeline from './components/Timeline'
@@ -27,9 +26,7 @@ function App() {
       <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
       <main className={`flex flex-1 overflow-hidden relative ${sidebarOpen ? 'md:overflow-hidden' : ''}`}>
         <div className={`flex-1 relative ${sidebarOpen ? 'pointer-events-none md:pointer-events-auto' : ''}`}>
-          <ErrorBoundary>
-            <Map3D />
-          </ErrorBoundary>
+          <Map3D />
         </div>
 
         {/* Mobile backdrop */}
