@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 import { formatDate } from '../utils/formatDate'
-import { parseWilayah } from '../lib/parseWilayah'
+import { parseWilayah, translatePotensi, translateDirasakan } from '../lib/parseWilayah'
 import { API_BASE } from '../services/api'
 import { useLanguage } from '../contexts/LanguageContext'
 
@@ -18,7 +18,7 @@ function formatValue(value, fallback) {
 }
 
 function DetailPanel({ quake, onClose }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
 
   const [summary, setSummary] = useState('')
   const [summaryLoading, setSummaryLoading] = useState(false)
@@ -89,14 +89,14 @@ function DetailPanel({ quake, onClose }) {
     return {
       magnitude: Number(quake.Magnitude ?? quake.magnitude ?? quake.mag),
       magnitudeLabel: formatValue(quake.Magnitude ?? quake.magnitude ?? quake.mag, 'N/A'),
-      location: formatValue(parseWilayah(quake.Wilayah || quake.location || quake.place), t('detail.unknown')),
+      location: formatValue(parseWilayah(quake.Wilayah || quake.location || quake.place, lang), t('detail.unknown')),
       coordinates,
       depth: depthText,
       dateTime: quake.datetime ?? quake.time ? (() => {
         const d = new Date(quake.datetime ?? quake.time)
         return Number.isNaN(d.getTime()) ? t('detail.unknown') : d
       })() : t('detail.unknown'),
-      tsunamiRisk: `${quake.Potensi ?? ''} ${quake.tsunami ?? ''}`.toLowerCase().includes('tsunami'),
+      tsunamiRisk: translatePotensi(`${quake.Potensi ?? ''} ${quake.tsunami ?? ''}`, lang).toLowerCase().includes('tsunami'),
     }
   }, [quake])
 

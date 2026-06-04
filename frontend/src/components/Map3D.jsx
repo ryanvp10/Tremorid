@@ -11,6 +11,7 @@ import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { parseWilayah } from '../lib/parseWilayah'
 import { API_BASE } from '../services/api'
 import { formatDate } from '../utils/formatDate'
+import { useLanguage } from '../contexts/LanguageContext'
 
 function getMagnitudeColor(magnitude) {
   if (magnitude >= 5) return Color.RED
@@ -27,8 +28,22 @@ function formatInfoValue(value) {
     .replaceAll("'", '&#39;')
 }
 
+function buildDescription(quake, lang) {
+  return `
+    <div>
+      <div>Location: ${formatInfoValue(parseWilayah(quake.Wilayah || quake.location, lang))}</div>
+      <div>Magnitude: ${formatInfoValue(quake.magnitude)}</div>
+      <div>Depth: ${formatInfoValue(quake.depth)}</div>
+      <div>Datetime: ${formatDate(quake.datetime)}</div>
+    </div>
+  `
+}
+
 function Map3D() {
   const containerRef = useRef(null)
+  const viewerRef = useRef(null)
+  const quakesRef = useRef([])
+  const { lang } = useLanguage()
 
   useEffect(() => {
     if (!containerRef.current) return undefined
@@ -50,6 +65,7 @@ function Map3D() {
       navigationHelpButton: false,
       fullscreenButton: false,
     })
+    viewerRef.current = viewer
 
     viewer.camera.setView({
       destination: Cartesian3.fromDegrees(118, -2, 6500000),
@@ -61,8 +77,9 @@ function Map3D() {
         if (!response.ok) return
 
         const quakes = await response.json()
-
         if (!isMounted || !Array.isArray(quakes)) return
+
+        quakesRef.current = quakes
 
         quakes.forEach((quake, index) => {
           const latitude = Number(quake.latitude)
@@ -84,14 +101,7 @@ function Map3D() {
               outlineColor: Color.WHITE,
               outlineWidth: 1,
             },
-            description: `
-              <div>
-                <div>Location: ${formatInfoValue(parseWilayah(quake.Wilayah || quake.location))}</div>
-                <div>Magnitude: ${formatInfoValue(quake.magnitude)}</div>
-                <div>Depth: ${formatInfoValue(quake.depth)}</div>
-                <div>Datetime: ${formatDate(quake.datetime)}</div>
-              </div>
-            `,
+            description: buildDescription(quake, lang),
           })
         })
       } catch {
@@ -104,8 +114,25 @@ function Map3D() {
     return () => {
       isMounted = false
       viewer.destroy()
+      viewerRef.current = null
     }
   }, [])
+
+  // Update entity descriptions when language changes (no re-fetch needed)
+  useEffect(() => {
+    const viewer = viewerRef.current
+    if (!viewer) return
+
+    const entities = viewer.entities.values
+    const quakes = quakesRef.current
+
+    entities.forEach((entity, index) => {
+      const quake = quakes[index]
+      if (quake) {
+        entity.description = buildDescription(quake, lang)
+      }
+    })
+  }, [lang])
 
   return <div ref={containerRef} className="h-full w-full" />
 }
