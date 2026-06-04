@@ -1,12 +1,17 @@
 const directionMap = {
+  // Spaced versions
+  'barat laut': 'Northwest',
+  'barat daya': 'Southwest',
+  'timur laut': 'Northeast',
+  tenggara: 'Southeast',
   utara: 'North',
   selatan: 'South',
   barat: 'West',
   timur: 'East',
-  'barat daya': 'Southwest',
-  tenggara: 'Southeast',
-  'timur laut': 'Northeast',
-  'barat laut': 'Northwest',
+  // CamelCase versions (BMKG JSON format)
+  baratlaut: 'Northwest',
+  baratdaya: 'Southwest',
+  timurlaut: 'Northeast',
 }
 
 /**
@@ -20,53 +25,61 @@ const directionMap = {
  * Input:  "Pusat gempa berada di laut 22 km tenggara Sarmi"
  * Output (id): "22 km Tenggara SARMI (Laut)"
  * Output (en): "22 km Southeast of SARMI (Sea)"
+ *
+ * Input:  "39 km TimurLaut LABUANBAJO-NTT"
+ * Output (en): "39 km Northeast of LABUANBAJO-NTT"
  */
 export function parseWilayah(wilayah, lang) {
   if (!wilayah || typeof wilayah !== 'string') return wilayah
 
-  // Normalize camelCase directions: "BaratLaut" → "Barat Laut", "TimurLaut" → "Timur Laut"
-  const normalized = wilayah.replace(
-    /(Barat|Timur|Selatan)(Laut|Daya|Tenggara)/gi,
-    '$1 $2'
-  )
-  const text = normalized.trim()
-  console.log('parseWilayah input:', text, 'lang:', lang)
+  const text = wilayah.trim()
+
+  // Direction pattern: matches both "Barat Laut" and "BaratLaut" (BMKG uses both)
+  // Longer directions first so "barat laut"/"BaratLaut" match before "barat"
+  const dirPattern = '(barat laut|baratlaut|barat daya|baratdaya|timur laut|timurlaut|tenggara|utara|selatan|barat|timur)'
 
   // Match: "... darat X km direction Location" (on land)
-  // Longer directions first so "barat laut" matches before "barat"
   const landMatch = text.match(
-    /darat\s+(\d+(?:\.\d+)?)\s*km\s+(barat laut|barat daya|timur laut|tenggara|utara|selatan|barat|timur)\s+(.+)/i
+    new RegExp(`darat\\s+(\\d+(?:\\.\\d+)?)\\s*km\\s+${dirPattern}\\s+(.+)`, 'i')
   )
   if (landMatch) {
-    const dist = landMatch[1]
-    const dir = capitalize(landMatch[2])
-    const loc = cleanLoc(landMatch[3])
-    const translatedDir = lang === 'en' ? translateDirection(dir) : dir
-    const base = `${dist} km ${translatedDir} ${loc}`
-    return lang === 'en' ? addOfPreposition(base) : base
+    return formatResult(landMatch[1], landMatch[2], landMatch[3], lang, false)
   }
 
   // Match: "... laut X km direction Location" (at sea)
   const seaMatch = text.match(
-    /laut\s+(\d+(?:\.\d+)?)\s*km\s+(barat laut|barat daya|timur laut|tenggara|utara|selatan|barat|timur)\s+(.+)/i
+    new RegExp(`laut\\s+(\\d+(?:\\.\\d+)?)\\s*km\\s+${dirPattern}\\s+(.+)`, 'i')
   )
   if (seaMatch) {
-    const dist = seaMatch[1]
-    const dir = capitalize(seaMatch[2])
-    const loc = cleanLoc(seaMatch[3])
-    const translatedDir = lang === 'en' ? translateDirection(dir) : dir
-    const seaLabel = lang === 'en' ? '(Sea)' : '(Laut)'
-    const base = `${dist} km ${translatedDir} ${loc} ${seaLabel}`
-    return lang === 'en' ? addOfPreposition(base) : base
+    return formatResult(seaMatch[1], seaMatch[2], seaMatch[3], lang, true)
+  }
+
+  // Match: "X km direction Location" (no darat/laut prefix — common in BMKG JSON)
+  const bareMatch = text.match(
+    new RegExp(`^(\\d+(?:\\.\\d+)?)\\s*km\\s+${dirPattern}\\s+(.+)`, 'i')
+  )
+  if (bareMatch) {
+    const isSea = /\blaut\b/i.test(wilayah)
+    return formatResult(bareMatch[1], bareMatch[2], bareMatch[3], lang, isSea)
   }
 
   // Fallback: return as-is without the prefix
   return text.replace(/Pusat gempa berada di\s+/gi, '').trim()
 }
 
+function formatResult(dist, dir, loc, lang, isSea) {
+  const capitalized = capitalize(dir)
+  const translatedDir = lang === 'en' ? translateDirection(capitalized) : capitalized
+  const cleanLocation = cleanLoc(loc)
+  const seaLabel = isSea ? (lang === 'en' ? '(Sea)' : '(Laut)') : ''
+  const base = seaLabel
+    ? `${dist} km ${translatedDir} ${cleanLocation} ${seaLabel}`
+    : `${dist} km ${translatedDir} ${cleanLocation}`
+  return lang === 'en' ? addOfPreposition(base) : base
+}
+
 function translateDirection(dir) {
   const lower = dir.toLowerCase()
-  console.log('translateDirection:', dir, '->', lower, '->', directionMap[lower])
   return directionMap[lower] || dir
 }
 
