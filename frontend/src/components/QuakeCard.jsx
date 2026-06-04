@@ -1,7 +1,43 @@
 import React from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { parseWilayah } from '../lib/parseWilayah'
-import { formatDate } from '../utils/formatDate'
+
+function formatDatetime(datetime) {
+  if (!datetime) return '-'
+
+  const rawValue = String(datetime).trim()
+  const hasExplicitTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(rawValue)
+  const localDateMatch = !hasExplicitTimezone
+    ? rawValue.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/)
+    : null
+
+  if (localDateMatch) {
+    const [, year, month, day, hour, minute] = localDateMatch
+    return `${day}/${month}/${year}, ${hour}:${minute} WIB`
+  }
+
+  const date = new Date(datetime)
+
+  if (Number.isNaN(date.getTime())) {
+    return `${rawValue} WIB`
+  }
+
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Jakarta',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date)
+
+  const getPart = (type) => parts.find((part) => part.type === type)?.value
+
+  return `${getPart('day')}/${getPart('month')}/${getPart('year')}, ${getPart(
+    'hour'
+  )}:${getPart('minute')} WIB`
+}
 
 function getMagnitudeColor(magnitude) {
   const value = Number(magnitude)
@@ -12,13 +48,14 @@ function getMagnitudeColor(magnitude) {
 }
 
 function QuakeCard({ quake }) {
-  const { t, lang } = useLanguage()
+  const { t } = useLanguage()
   if (!quake) return null
 
   const { datetime, magnitude, depth, location, tsunami, Wilayah } = quake
-  const displayLocation = parseWilayah(Wilayah || location, lang) || 'Unknown location'
-  const displayTsunami = translatePotensi(tsunami || '', lang)
-  const hasTsunamiPotential = (displayTsunami || '').toLowerCase().includes('tsunami')
+  const displayLocation = parseWilayah(Wilayah || location) || 'Unknown location'
+  const hasTsunamiPotential = String(tsunami || '')
+    .toLowerCase()
+    .includes('potensi')
 
   return (
     <article className="rounded-lg border border-border bg-bg-card p-4 text-text-primary shadow-lg">
@@ -49,7 +86,7 @@ function QuakeCard({ quake }) {
       </div>
 
       <time className="mt-3 block text-sm text-text-secondary" dateTime={datetime}>
-        {formatDate(datetime)}
+        {formatDatetime(datetime)}
       </time>
     </article>
   )

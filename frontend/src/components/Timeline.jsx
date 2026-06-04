@@ -19,10 +19,8 @@ function Timeline() {
         const date = new Date(today)
         date.setDate(today.getDate() - (6 - index))
         const key = date.toISOString().slice(0, 10)
-        const dd = String(date.getDate()).padStart(2, '0')
-        const mm = String(date.getMonth() + 1).padStart(2, '0')
         const weekday = date.toLocaleDateString('en-US', { weekday: 'short' })
-        const dateNum = `${dd}/${mm}`
+        const dateNum = date.toLocaleDateString('en-US', { day: '2-digit', month: 'short' })
         return { key, weekday, date: dateNum, count: 0 }
       })
 

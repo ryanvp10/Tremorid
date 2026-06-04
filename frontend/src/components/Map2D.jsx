@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { API_BASE } from '../services/api'
-import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip } from 'react-leaflet'
+import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import { formatDate } from '../utils/formatDate'
-import { parseWilayah } from '../lib/parseWilayah'
-import { useLanguage } from '../contexts/LanguageContext'
 
 function getMagnitudeColor(magnitude) {
   const value = Number(magnitude)
@@ -37,7 +34,6 @@ function getCoordinates(quake) {
 
 function Map2D() {
   const [quakes, setQuakes] = useState([])
-  const { lang } = useLanguage()
 
   useEffect(() => {
     let isMounted = true
@@ -87,13 +83,12 @@ function Map2D() {
             radius={Math.max(magnitude * 2, 4)}
             pathOptions={{ color, fillColor: color, fillOpacity: 0.75 }}
           >
-            <Tooltip>Detail</Tooltip>
             <Popup>
               <div>
-                <div>Location: {parseWilayah(quake.location ?? quake.place ?? quake.wilayah, lang) ?? '-'}</div>
+                <div>Location: {quake.location ?? quake.place ?? quake.wilayah ?? '-'}</div>
                 <div>Magnitude: {quake.magnitude ?? quake.mag ?? quake.Magnitude ?? '-'}</div>
                 <div>Depth: {quake.depth ?? quake.Depth ?? quake.kedalaman ?? '-'}</div>
-                <div>Datetime: {formatDate(quake.datetime ?? quake.time)}</div>
+                <div>Datetime: {quake.datetime ?? quake.time ?? quake.dateTime ?? '-'}</div>
               </div>
             </Popup>
           </CircleMarker>
