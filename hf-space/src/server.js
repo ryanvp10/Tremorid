@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express')
 const cors = require('cors')
 const quakeRoutes = require('./routes/quakes')
-const { bot, getBotWebhookHandler } = require('./telegram/bot')
+const { initBot, getBot, getBotWebhookHandler } = require('./telegram/bot')
 const { start: startBmkgFetcher, stop: stopBmkgFetcher, handleNewQuakeAlerts } = require('./services/bmkgFetcher')
 
 const app = express()
@@ -22,13 +22,14 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 // CORS
 app.use(cors({ origin: allowedOrigins }))
 
+// Initialize bot (lazy — won't crash if Telegram API unreachable)
+initBot()
+
 // Register webhook endpoint BEFORE bodyParser (same as personal-tracker)
-if (process.env.TELEGRAM_BOT_TOKEN) {
-  const webhookHandler = getBotWebhookHandler()
-  if (webhookHandler) {
-    app.post('/telegram-webhook', express.json(), webhookHandler)
-    console.log('[BOT] Telegram webhook endpoint registered at /telegram-webhook')
-  }
+const webhookHandler = getBotWebhookHandler()
+if (webhookHandler) {
+  app.post('/telegram-webhook', express.json(), webhookHandler)
+  console.log('[BOT] Telegram webhook endpoint registered at /telegram-webhook')
 }
 
 // Body parsers — after webhook route
@@ -45,10 +46,10 @@ app.get('/api/health', (req, res) => {
 // ── Async startup (same pattern as personal-tracker) ──
 async function start() {
   // Set webhook on HF Spaces
-  if (process.env.TELEGRAM_BOT_TOKEN && process.env.HF_SPACE === '1') {
+  if (process.env.HF_SPACE === '1' && getBot()) {
     const webhookUrl = `https://ryanvp10-tremorid-api.hf.space/telegram-webhook`
     try {
-      await bot.telegram.setWebhook(webhookUrl)
+      await getBot().telegram.setWebhook(webhookUrl)
       console.log('[BOT] Webhook set:', webhookUrl)
     } catch (err) {
       console.error('[BOT] Webhook setup failed:', err.message)
@@ -71,7 +72,7 @@ async function start() {
 
   const shutdown = (signal) => {
     console.log(`Received ${signal}, shutting down gracefully`)
-    try { bot.stop(signal) } catch (e) { /* bot may not have started */ }
+    try { if (getBot()) getBot().stop(signal) } catch (e) { /* bot may not have started */ }
     try { stopBmkgFetcher() } catch (e) { /* fetcher may not have started */ }
     server.close(() => {
       process.exit(0)
