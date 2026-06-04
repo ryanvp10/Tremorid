@@ -24,7 +24,12 @@ const directionMap = {
 export function parseWilayah(wilayah, lang) {
   if (!wilayah || typeof wilayah !== 'string') return wilayah
 
-  const text = wilayah.trim()
+  // Normalize camelCase directions: "BaratLaut" → "Barat Laut", "TimurLaut" → "Timur Laut"
+  const normalized = wilayah.replace(
+    /(Barat|Timur|Selatan)(Laut|Daya|Tenggara)/gi,
+    '$1 $2'
+  )
+  const text = normalized.trim()
   console.log('parseWilayah input:', text, 'lang:', lang)
 
   // Match: "... darat X km direction Location" (on land)
