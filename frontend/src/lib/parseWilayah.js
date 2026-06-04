@@ -25,6 +25,7 @@ export function parseWilayah(wilayah, lang) {
   if (!wilayah || typeof wilayah !== 'string') return wilayah
 
   const text = wilayah.trim()
+  console.log('parseWilayah input:', text, 'lang:', lang)
 
   // Match: "... darat X km direction Location" (on land)
   // Longer directions first so "barat laut" matches before "barat"
@@ -60,6 +61,7 @@ export function parseWilayah(wilayah, lang) {
 
 function translateDirection(dir) {
   const lower = dir.toLowerCase()
+  console.log('translateDirection:', dir, '->', lower, '->', directionMap[lower])
   return directionMap[lower] || dir
 }
 
