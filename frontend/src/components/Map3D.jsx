@@ -10,6 +10,7 @@ import {
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { parseWilayah } from '../lib/parseWilayah'
 import { API_BASE } from '../services/api'
+import { formatDate } from '../utils/formatDate'
 
 function getMagnitudeColor(magnitude) {
   if (magnitude >= 5) return Color.RED
@@ -88,7 +89,7 @@ function Map3D() {
                 <div>Location: ${formatInfoValue(parseWilayah(quake.Wilayah || quake.location))}</div>
                 <div>Magnitude: ${formatInfoValue(quake.magnitude)}</div>
                 <div>Depth: ${formatInfoValue(quake.depth)}</div>
-                <div>Datetime: ${formatInfoValue(quake.datetime)}</div>
+                <div>Datetime: ${formatDate(quake.datetime)}</div>
               </div>
             `,
           })
