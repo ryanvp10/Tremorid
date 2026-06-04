@@ -48,11 +48,11 @@ function getMagnitudeColor(magnitude) {
 }
 
 function QuakeCard({ quake }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   if (!quake) return null
 
   const { datetime, magnitude, depth, location, tsunami, Wilayah } = quake
-  const displayLocation = parseWilayah(Wilayah || location) || 'Unknown location'
+  const displayLocation = parseWilayah(Wilayah || location, lang) || 'Unknown location'
   const hasTsunamiPotential = String(tsunami || '')
     .toLowerCase()
     .includes('potensi')
