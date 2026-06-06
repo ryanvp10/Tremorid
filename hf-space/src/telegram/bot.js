@@ -100,8 +100,8 @@ function initBot() {
         const aiResponse = await generateChatResponse(userMessage, quakeContext);
         await ctx.reply(aiResponse.slice(0, 4000));
       } catch (e) {
-        console.error('[BOT] text handler error:', e.message);
-        await ctx.reply('Sorry, something went wrong while processing your message. Please try again.');
+        console.error('[BOT] text handler error:', e.message, '| stack:', e.stack?.split('\n').slice(0,3).join(' | '));
+        await ctx.reply('Sorry, something went wrong. Please try again later.');
       }
     });
 
