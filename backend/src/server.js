@@ -8,6 +8,7 @@ const { start: startBmkgFetcher, stop: stopBmkgFetcher, handleNewQuakeAlerts } =
 const app = express()
 const PORT = process.env.PORT || 3000
 const WEBHOOK_SECRET_HEADER = 'x-telegram-bot-api-secret-token'
+process.on('unhandledRejection', (err) => console.error('[UNHANDLED]', err && err.message ? err.message : err))
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : ['http://localhost:5173', 'http://localhost:3000']
@@ -36,7 +37,7 @@ app.get('/api/health', (req, res) => {
 
 async function start() {
   try {
-    await initBot()
+    initBot()
 
     const webhookHandler = getBotWebhookHandler()
     if (webhookHandler) {

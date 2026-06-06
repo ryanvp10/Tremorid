@@ -10,6 +10,7 @@ const { start: startBmkgFetcher, stop: stopBmkgFetcher, handleNewQuakeAlerts } =
 
 const app = express()
 const PORT = parseInt(process.env.PORT || '7860', 10)
+process.on('unhandledRejection', (err) => console.error('[UNHANDLED]', err && err.message ? err.message : err))
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : [
@@ -36,7 +37,7 @@ app.get('/api/health', (req, res) => {
 // ── Async startup (same pattern as personal-tracker) ──
 async function start() {
   try {
-    await initBot()
+    initBot()
 
     // Register webhook endpoint after bot initialization
     const webhookHandler = getBotWebhookHandler()
