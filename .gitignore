@@ -13,3 +13,4 @@ build/
 Thumbs.db
 hf-space/data/*.db*
 hf-space/node_modules/
+hf-space/data/

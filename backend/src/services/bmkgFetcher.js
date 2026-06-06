@@ -3,10 +3,12 @@ const { db } = require('../db');
 const { broadcastAlert } = require('../telegram/bot');
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
-const FETCH_TIMEOUT_MS = 10_000;
+const FETCH_TIMEOUT_MS = 30_000;
 const MAX_RESPONSE_BYTES = 1024 * 1024;
 const MAX_TEXT_FIELD_LENGTH = 255;
 const RETRY_DELAYS_MS = [2000, 4000, 8000];
+const HANDLE_ALERT_RETRY_ATTEMPTS = 3;
+const HANDLE_ALERT_RETRY_DELAY_MS = 5000;
 
 const UPSERT_QUAKE = db.prepare(`
   INSERT INTO earthquakes (datetime, magnitude, depth, latitude, longitude, location, felt, tsunami)
@@ -302,10 +304,19 @@ function stop() {
 }
 
 async function handleNewQuakeAlerts() {
-  try {
-    await refreshQuakes();
-  } catch (err) {
-    console.error('[bmkgFetcher] handleNewQuakeAlerts error:', err.message);
+  for (let attempt = 1; attempt <= HANDLE_ALERT_RETRY_ATTEMPTS; attempt++) {
+    try {
+      await refreshQuakes();
+      return;
+    } catch (err) {
+      console.error('[bmkgFetcher] handleNewQuakeAlerts error:', err.message);
+
+      if (attempt === HANDLE_ALERT_RETRY_ATTEMPTS) {
+        return;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, HANDLE_ALERT_RETRY_DELAY_MS));
+    }
   }
 }
 
