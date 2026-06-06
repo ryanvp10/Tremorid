@@ -74,7 +74,7 @@ function Map3D() {
 
           const magnitude = Number(quake.magnitude ?? 0)
           const safeMagnitude = Number.isFinite(magnitude) ? magnitude : 0
-          const radius = Math.max(safeMagnitude * 15000, 5000)
+          const radius = Math.max(safeMagnitude * 3000, 1500)
 
           viewer.entities.add({
             id: quake.id ?? `quake-${index}`,
@@ -83,10 +83,10 @@ function Map3D() {
             ellipse: {
               semiMinorAxis: radius,
               semiMajorAxis: radius,
-              material: getMagnitudeColor(safeMagnitude).withAlpha(0.6),
+              material: getMagnitudeColor(safeMagnitude).withAlpha(0.5),
               outline: true,
-              outlineColor: getMagnitudeColor(safeMagnitude).withAlpha(0.9),
-              outlineWidth: 2,
+              outlineColor: getMagnitudeColor(safeMagnitude).withAlpha(0.8),
+              outlineWidth: 1,
               heightReference: 0,
             },
             description: `
