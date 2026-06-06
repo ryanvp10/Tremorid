@@ -22,16 +22,6 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 // CORS
 app.use(cors({ origin: allowedOrigins }))
 
-// Initialize bot (lazy — won't crash if Telegram API unreachable)
-initBot()
-
-// Register webhook endpoint BEFORE bodyParser (same as personal-tracker)
-const webhookHandler = getBotWebhookHandler()
-if (webhookHandler) {
-  app.post('/telegram-webhook', express.json(), webhookHandler)
-  console.log('[BOT] Telegram webhook endpoint registered at /telegram-webhook')
-}
-
 // Body parsers — after webhook route
 app.use(express.json())
 
@@ -45,6 +35,19 @@ app.get('/api/health', (req, res) => {
 
 // ── Async startup (same pattern as personal-tracker) ──
 async function start() {
+  try {
+    await initBot()
+
+    // Register webhook endpoint after bot initialization
+    const webhookHandler = getBotWebhookHandler()
+    if (webhookHandler) {
+      app.post('/telegram-webhook', express.json(), webhookHandler)
+      console.log('[BOT] Telegram webhook endpoint registered at /telegram-webhook')
+    }
+  } catch (err) {
+    console.error('[BOT] Bot startup failed, continuing without Telegram bot:', err.message)
+  }
+
   // Set webhook on HF Spaces
   if (process.env.HF_SPACE === '1' && getBot()) {
     const webhookUrl = `https://ryanvp10-tremorid-api.hf.space/telegram-webhook`

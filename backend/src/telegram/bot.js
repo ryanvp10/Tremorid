@@ -8,7 +8,7 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 let bot = null;
 
-function initBot() {
+async function initBot() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token || token === 'your_telegram_bot_token_here') {
     console.log('[BOT] No TELEGRAM_BOT_TOKEN set, bot disabled');
@@ -17,6 +17,14 @@ function initBot() {
 
   try {
     bot = new Telegraf(token);
+
+    try {
+      await bot.telegram.getMe();
+    } catch (e) {
+      console.error('[BOT] Telegram API unreachable, bot disabled:', e.message);
+      bot = null;
+      return null;
+    }
 
     bot.start(async (ctx) => {
       try {
@@ -109,6 +117,7 @@ function initBot() {
     return bot;
   } catch (e) {
     console.error('[BOT] Failed to initialize bot:', e.message);
+    bot = null;
     return null;
   }
 }

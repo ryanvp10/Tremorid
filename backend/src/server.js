@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const quakeRoutes = require('./routes/quakes')
-const { bot, getBotWebhookHandler } = require('./telegram/bot')
+const { initBot, getBot, getBotWebhookHandler } = require('./telegram/bot')
 const { start: startBmkgFetcher, stop: stopBmkgFetcher, handleNewQuakeAlerts } = require('./services/bmkgFetcher')
 
 const app = express()
@@ -34,30 +34,48 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
 })
 
-// Telegram webhook (polling mode used on HF Spaces, webhook for production)
-app.post('/api/telegram/webhook', validateWebhookSecret, getBotWebhookHandler())
+async function start() {
+  try {
+    await initBot()
 
-// Start Telegram bot (long-polling for dev, webhook for production)
-bot.launch().then(() => console.log('[BOT] Telegram bot polling started'))
+    const webhookHandler = getBotWebhookHandler()
+    if (webhookHandler) {
+      // Telegram webhook (polling mode used on HF Spaces, webhook for production)
+      app.post('/api/telegram/webhook', validateWebhookSecret, webhookHandler)
+    }
 
-// Start BMKG fetcher (every 5 min)
-const bmkgTimer = startBmkgFetcher()
+    if (getBot()) {
+      await getBot().launch()
+      console.log('[BOT] Telegram bot polling started')
+    }
+  } catch (err) {
+    console.error('[BOT] Bot startup failed, continuing without Telegram bot:', err.message)
+  }
 
-// Start server
-const server = app.listen(PORT, () => {
-  console.log(`TremorID backend running on port ${PORT}`)
-})
+  // Start BMKG fetcher (every 5 min)
+  const bmkgTimer = startBmkgFetcher()
 
-const shutdown = (signal) => {
-  console.log(`Received ${signal}, shutting down gracefully`)
-  bot.stop(signal)
-  stopBmkgFetcher()
-  server.close(() => {
-    process.exit(0)
+  // Start server
+  const server = app.listen(PORT, () => {
+    console.log(`TremorID backend running on port ${PORT}`)
   })
+
+  const shutdown = (signal) => {
+    console.log(`Received ${signal}, shutting down gracefully`)
+    try { if (getBot()) getBot().stop(signal) } catch (e) { /* bot may not have started */ }
+    try { stopBmkgFetcher() } catch (e) { /* fetcher may not have started */ }
+    server.close(() => {
+      process.exit(0)
+    })
+  }
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'))
+  process.on('SIGINT', () => shutdown('SIGINT'))
 }
 
-process.on('SIGTERM', () => shutdown('SIGTERM'))
-process.on('SIGINT', () => shutdown('SIGINT'))
+start().catch((err) => {
+  console.error('[FATAL] Failed to start server:', err)
+  process.exit(1)
+})
 
 module.exports = app
