@@ -74,7 +74,7 @@ function Map3D() {
 
           const magnitude = Number(quake.magnitude ?? 0)
           const safeMagnitude = Number.isFinite(magnitude) ? magnitude : 0
-          const radius = Math.max(safeMagnitude * 8000, 3000)
+          const radius = Math.max(safeMagnitude * 2500, 1200)
 
           viewer.entities.add({
             id: quake.id ?? `quake-${index}`,
