@@ -1,9 +1,25 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Search, Bell, Menu, Globe } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
+import { API_BASE } from '../services/api'
 
 function Navbar({ onToggleSidebar }) {
   const { lang, toggleLang, t } = useLanguage()
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const onSearch = async () => {
+    if (!searchQuery.trim()) return
+
+    const geoResponse = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`)
+    const geoData = await geoResponse.json()
+    const firstResult = geoData[0]
+    if (!firstResult) return
+
+    const { lat, lon } = firstResult
+    const response = await fetch(`${API_BASE}/quakes/near?lat=${lat}&lon=${lon}&radius=200`)
+    const data = await response.json()
+    console.log(data)
+  }
 
   return (
     <nav className="flex items-center justify-between px-4 md:px-6 py-3 bg-bg-secondary border-b border-border h-14 shrink-0">
@@ -20,6 +36,11 @@ function Navbar({ onToggleSidebar }) {
           <input
             type="text"
             placeholder={t('nav.searchPlaceholder')}
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') onSearch()
+            }}
             className="pl-10 pr-4 py-2 rounded-lg border border-border bg-bg-primary text-text-primary text-sm w-32 sm:w-48 focus:outline-none focus:border-brand-red"
           />
         </div>
