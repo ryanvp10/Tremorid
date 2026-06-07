@@ -11,10 +11,16 @@ function App() {
   const [filters, setFilters] = useState({})
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedQuake, setSelectedQuake] = useState(null)
+  const [searchResults, setSearchResults] = useState(null)
 
   const handleQuakeClick = (quake) => {
     setSelectedQuake(quake)
     setSidebarOpen(false)
+  }
+
+  const handleSearchResults = (quakes, location) => {
+    setSearchResults(quakes)
+    setSelectedQuake({ latitude: location.lat, longitude: location.lon, id: "__search__" })
   }
 
   // Close sidebar on resize to desktop
@@ -29,7 +35,7 @@ function App() {
   return (
     <LanguageProvider>
     <div className="flex flex-col h-screen overflow-hidden bg-bg-primary" style={{ height: '100dvh' }}>
-      <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
+      <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} onSearchResults={handleSearchResults} />
       <main className={`flex flex-1 overflow-hidden relative ${sidebarOpen ? 'md:overflow-hidden' : ''}`}>
         <div className={`flex-1 relative ${sidebarOpen ? 'pointer-events-none md:pointer-events-auto' : ''}`}>
           <Map3D selectedQuake={selectedQuake} />
@@ -55,7 +61,7 @@ function App() {
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}>
           <FilterPanel onFiltersChange={setFilters} />
-          <QuakeList filters={filters} onQuakeClick={handleQuakeClick} />
+          <QuakeList filters={filters} onQuakeClick={handleQuakeClick} searchResults={searchResults} />
         </aside>
       </main>
       <Timeline />

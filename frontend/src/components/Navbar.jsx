@@ -3,7 +3,7 @@ import { Search, Bell, Menu, Globe } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { API_BASE } from '../services/api'
 
-function Navbar({ onToggleSidebar }) {
+function Navbar({ onToggleSidebar, onSearchResults }) {
   const { lang, toggleLang, t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -18,7 +18,7 @@ function Navbar({ onToggleSidebar }) {
     const { lat, lon } = firstResult
     const response = await fetch(`${API_BASE}/quakes/near?lat=${lat}&lon=${lon}&radius=200`)
     const data = await response.json()
-    console.log(data)
+    onSearchResults?.(data, { lat: parseFloat(lat), lon: parseFloat(lon) })
   }
 
   return (

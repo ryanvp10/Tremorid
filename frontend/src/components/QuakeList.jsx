@@ -3,7 +3,7 @@ import QuakeCard from './QuakeCard'
 import { API_BASE } from '../services/api'
 import { useLanguage } from '../contexts/LanguageContext'
 
-function QuakeList({ filters = {}, onQuakeClick }) {
+function QuakeList({ filters = {}, onQuakeClick, searchResults }) {
   const { t } = useLanguage()
   const [quakes, setQuakes] = useState([])
   const [loading, setLoading] = useState(true)
@@ -14,6 +14,14 @@ function QuakeList({ filters = {}, onQuakeClick }) {
 
     async function fetchQuakes() {
       try {
+        setError('')
+        if (Array.isArray(searchResults)) {
+          if (isMounted) {
+            setQuakes(searchResults)
+          }
+          return
+        }
+
         const params = new URLSearchParams()
         if (filters.minMag) params.append('minMag', filters.minMag)
         if (filters.maxMag) params.append('maxMag', filters.maxMag)
@@ -47,7 +55,7 @@ function QuakeList({ filters = {}, onQuakeClick }) {
     return () => {
       isMounted = false
     }
-  }, [filters])
+  }, [filters, searchResults])
 
   const activeFilterCount = [filters.minMag, filters.maxMag, filters.maxDepth].filter(Boolean).length
 
@@ -73,7 +81,9 @@ function QuakeList({ filters = {}, onQuakeClick }) {
       )}
 
       {!loading && !error && quakes.length === 0 && (
-        <p className="text-sm text-text-secondary">{t('list.noData')}</p>
+        <p className="text-sm text-text-secondary">
+          {Array.isArray(searchResults) && searchResults.length === 0 ? 'No earthquakes found near this location' : t('list.noData')}
+        </p>
       )}
 
       {!loading && !error && quakes.length > 0 && (
