@@ -3,7 +3,10 @@ import {
   Cartesian3,
   Color,
   Credit,
+  defined,
   ImageryLayer,
+  ScreenSpaceEventHandler,
+  ScreenSpaceEventType,
   UrlTemplateImageryProvider,
   Viewer,
 } from 'cesium'
@@ -46,24 +49,9 @@ function Map3D({ selectedQuake }) {
       destination: Cartesian3.fromDegrees(longitude, latitude, 500000),
       duration: 1.5,
       complete: () => {
-        // After flying, find and select the entity to show popup + highlight
         const entity = viewer.entities.getById(selectedQuake.id ?? '')
         if (entity) {
           viewer.selectedEntity = entity
-          // Add green square highlight around selected quake
-          const highlightId = `highlight-${selectedQuake.id ?? ''}`
-          viewer.entities.removeById(highlightId)
-          viewer.entities.add({
-            id: highlightId,
-            position: Cartesian3.fromDegrees(longitude, latitude),
-            point: {
-              pixelSize: Math.max(Number(selectedQuake.magnitude ?? 0) * 4, 8),
-              color: Color.GREEN.withAlpha(0.3),
-              outlineColor: Color.GREEN,
-              outlineWidth: 2,
-              heightReference: 0,
-            },
-          })
         }
       },
     })
@@ -140,10 +128,22 @@ function Map3D({ selectedQuake }) {
       }
     }
 
+    // Click handler: select dot on click, clear selection on empty space
+    const handler = new ScreenSpaceEventHandler(viewer.scene.canvas)
+    handler.setInputAction((movement) => {
+      const picked = viewer.scene.pick(movement.position)
+      if (defined(picked) && picked.id && picked.id.name === 'Detail') {
+        viewer.selectedEntity = picked.id
+      } else {
+        viewer.selectedEntity = undefined
+      }
+    }, ScreenSpaceEventType.LEFT_CLICK)
+
     fetchQuakes()
 
     return () => {
       isMounted = false
+      handler.destroy()
       viewerRef.current = null
       viewer.destroy()
     }
