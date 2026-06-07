@@ -12,6 +12,11 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedQuake, setSelectedQuake] = useState(null)
 
+  const handleQuakeClick = (quake) => {
+    setSelectedQuake(quake)
+    setSidebarOpen(false)
+  }
+
   // Close sidebar on resize to desktop
   useEffect(() => {
     const handleResize = () => {
@@ -50,7 +55,7 @@ function App() {
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}>
           <FilterPanel onFiltersChange={setFilters} />
-          <QuakeList filters={filters} onQuakeClick={setSelectedQuake} />
+          <QuakeList filters={filters} onQuakeClick={handleQuakeClick} />
         </aside>
       </main>
       <Timeline />

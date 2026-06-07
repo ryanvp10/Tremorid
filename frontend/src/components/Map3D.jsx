@@ -39,9 +39,33 @@ function Map3D({ selectedQuake }) {
 
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return
 
-    viewerRef.current?.camera.flyTo({
+    const viewer = viewerRef.current
+    if (!viewer) return
+
+    viewer.camera.flyTo({
       destination: Cartesian3.fromDegrees(longitude, latitude, 500000),
       duration: 1.5,
+      complete: () => {
+        // After flying, find and select the entity to show popup + highlight
+        const entity = viewer.entities.getById(selectedQuake.id ?? '')
+        if (entity) {
+          viewer.selectedEntity = entity
+          // Add green square highlight around selected quake
+          const highlightId = `highlight-${selectedQuake.id ?? ''}`
+          viewer.entities.removeById(highlightId)
+          viewer.entities.add({
+            id: highlightId,
+            position: Cartesian3.fromDegrees(longitude, latitude),
+            point: {
+              pixelSize: Math.max(Number(selectedQuake.magnitude ?? 0) * 4, 8),
+              color: Color.GREEN.withAlpha(0.3),
+              outlineColor: Color.GREEN,
+              outlineWidth: 2,
+              heightReference: 0,
+            },
+          })
+        }
+      },
     })
   }, [selectedQuake])
 
