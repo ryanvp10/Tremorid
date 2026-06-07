@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Search, Bell, Menu, Globe } from 'lucide-react'
+import { Search, Bell, Menu, Globe, X } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { API_BASE } from '../services/api'
 
 function Navbar({ onToggleSidebar, onSearchResults }) {
   const { lang, toggleLang, t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState('')
+  const [hasSearched, setHasSearched] = useState(false)
 
   const onSearch = async () => {
     if (!searchQuery.trim()) return
@@ -18,7 +19,14 @@ function Navbar({ onToggleSidebar, onSearchResults }) {
     const { lat, lon } = firstResult
     const response = await fetch(`${API_BASE}/quakes/near?lat=${lat}&lon=${lon}&radius=200`)
     const data = await response.json()
+    setHasSearched(true)
     onSearchResults?.(data, { lat: parseFloat(lat), lon: parseFloat(lon) })
+  }
+
+  const onClearSearch = () => {
+    setSearchQuery('')
+    setHasSearched(false)
+    onSearchResults?.(null, null)
   }
 
   return (
@@ -41,8 +49,16 @@ function Navbar({ onToggleSidebar, onSearchResults }) {
             onKeyDown={(event) => {
               if (event.key === 'Enter') onSearch()
             }}
-            className="pl-10 pr-4 py-2 rounded-lg border border-border bg-bg-primary text-text-primary text-sm w-32 sm:w-48 focus:outline-none focus:border-brand-red"
+            className="pl-10 pr-8 py-2 rounded-lg border border-border bg-bg-primary text-text-primary text-sm w-32 sm:w-48 focus:outline-none focus:border-brand-red"
           />
+          {hasSearched && (
+            <button
+              onClick={onClearSearch}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-bg-secondary text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
 
         {/* Language Toggle */}
