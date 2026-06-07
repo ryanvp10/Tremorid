@@ -28,9 +28,22 @@ function formatInfoValue(value) {
     .replaceAll("'", '&#39;')
 }
 
-function Map3D() {
+function Map3D({ selectedQuake }) {
   const containerRef = useRef(null)
+  const viewerRef = useRef(null)
   const { lang } = useLanguage()
+
+  useEffect(() => {
+    const latitude = Number(selectedQuake?.latitude)
+    const longitude = Number(selectedQuake?.longitude)
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return
+
+    viewerRef.current?.camera.flyTo({
+      destination: Cartesian3.fromDegrees(longitude, latitude, 500000),
+      duration: 1.5,
+    })
+  }, [selectedQuake])
 
   useEffect(() => {
     if (!containerRef.current) return undefined
@@ -52,6 +65,7 @@ function Map3D() {
       navigationHelpButton: false,
       fullscreenButton: false,
     })
+    viewerRef.current = viewer
 
     viewer.camera.setView({
       destination: Cartesian3.fromDegrees(118, -2, 6500000),
@@ -106,6 +120,7 @@ function Map3D() {
 
     return () => {
       isMounted = false
+      viewerRef.current = null
       viewer.destroy()
     }
   }, [])

@@ -3,7 +3,7 @@ import QuakeCard from './QuakeCard'
 import { API_BASE } from '../services/api'
 import { useLanguage } from '../contexts/LanguageContext'
 
-function QuakeList({ filters = {} }) {
+function QuakeList({ filters = {}, onQuakeClick }) {
   const { t } = useLanguage()
   const [quakes, setQuakes] = useState([])
   const [loading, setLoading] = useState(true)
@@ -79,7 +79,7 @@ function QuakeList({ filters = {} }) {
       {!loading && !error && quakes.length > 0 && (
         <div className="space-y-3">
           {quakes.map((quake, index) => (
-            <QuakeCard key={quake.id ?? `${quake.datetime}-${index}`} quake={quake} />
+            <QuakeCard key={quake.id ?? `${quake.datetime}-${index}`} quake={quake} onClick={onQuakeClick} />
           ))}
         </div>
       )}

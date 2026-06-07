@@ -47,7 +47,7 @@ function getMagnitudeColor(magnitude) {
   return 'text-green-400'
 }
 
-function QuakeCard({ quake }) {
+function QuakeCard({ quake, onClick }) {
   const { t, lang } = useLanguage()
   if (!quake) return null
 
@@ -58,7 +58,7 @@ function QuakeCard({ quake }) {
     .includes('potensi')
 
   return (
-    <article className="rounded-lg border border-border bg-bg-card p-4 text-text-primary shadow-lg">
+    <article className="cursor-pointer rounded-lg border border-border bg-bg-card p-4 text-text-primary shadow-lg" onClick={() => onClick?.(quake)}>
       <div className="mb-3 flex items-start justify-between gap-3">
         <h3 className="text-base font-semibold leading-snug">
           {displayLocation}
