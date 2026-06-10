@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Search, Bell, Menu, Globe, X } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { API_BASE } from '../services/api'
@@ -7,6 +7,20 @@ function Navbar({ onToggleSidebar, onSearchResults }) {
   const { lang, toggleLang, t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState('')
   const [hasSearched, setHasSearched] = useState(false)
+  const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false)
+
+  useEffect(() => {
+    if (!isTelegramModalOpen) return
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsTelegramModalOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isTelegramModalOpen])
 
   const onSearch = async () => {
     if (!searchQuery.trim()) return
@@ -30,6 +44,7 @@ function Navbar({ onToggleSidebar, onSearchResults }) {
   }
 
   return (
+    <>
     <nav className="flex items-center justify-between px-4 md:px-6 py-3 bg-bg-secondary border-b border-border h-14 shrink-0">
       <div className="flex items-center gap-2">
         <button className="md:hidden p-1 -ml-1" onClick={onToggleSidebar}>
@@ -70,12 +85,72 @@ function Navbar({ onToggleSidebar, onSearchResults }) {
           <span>{lang === 'en' ? '🇺🇸 EN' : '🇮🇩 ID'}</span>
         </button>
 
-        <button className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg bg-brand-red text-white text-sm hover:bg-brand-red-dark transition-colors whitespace-nowrap">
+        <button
+          onClick={() => setIsTelegramModalOpen(true)}
+          className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg bg-brand-red text-white text-sm hover:bg-brand-red-dark transition-colors whitespace-nowrap"
+        >
           <Bell className="w-4 h-4 shrink-0" />
           <span className="hidden sm:inline">{t('nav.telegram')}</span>
         </button>
       </div>
     </nav>
+
+    {isTelegramModalOpen && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        onClick={() => setIsTelegramModalOpen(false)}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="telegram-modal-title"
+      >
+        <div
+          className="relative w-full max-w-sm rounded-2xl border border-border bg-bg-primary p-6 text-text-primary shadow-xl"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button
+            onClick={() => setIsTelegramModalOpen(false)}
+            className="absolute right-3 top-3 rounded-lg p-1.5 text-text-secondary hover:bg-bg-secondary hover:text-text-primary transition-colors"
+            aria-label={t('modal.telegram.close')}
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+          <div className="mb-4 flex items-center gap-3 pr-8">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-red text-white">
+              <Bell className="h-5 w-5" />
+            </div>
+            <h2 id="telegram-modal-title" className="text-xl font-bold">
+              {t('modal.telegram.title')}
+            </h2>
+          </div>
+
+          <p className="mb-5 text-sm leading-6 text-text-secondary">
+            {t('modal.telegram.desc')}
+          </p>
+
+          <ol className="mb-6 space-y-3 text-sm text-text-primary">
+            {[1, 2, 3].map((step) => (
+              <li key={step} className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg-secondary text-xs font-semibold text-brand-red">
+                  {step}
+                </span>
+                <span className="leading-6">{t(`modal.telegram.step${step}`)}</span>
+              </li>
+            ))}
+          </ol>
+
+          <a
+            href="https://t.me/TremorIDBot"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full rounded-lg bg-brand-red px-4 py-3 text-center text-sm font-semibold text-white hover:bg-brand-red-dark transition-colors"
+          >
+            {t('modal.telegram.openButton')}
+          </a>
+        </div>
+      </div>
+    )}
+    </>
   )
 }
 

@@ -4,6 +4,15 @@ const translations = {
     'nav.searchPlaceholder': 'Search city...',
     'nav.telegram': 'Telegram',
 
+    // Telegram Modal
+    'modal.telegram.title': 'Get Earthquake Alerts',
+    'modal.telegram.desc': 'Get instant earthquake notifications ≥ 5.0 magnitude delivered to your Telegram.',
+    'modal.telegram.step1': 'Tap the button below to open our Telegram bot',
+    'modal.telegram.step2': 'Send /start to subscribe to alerts',
+    'modal.telegram.step3': 'Receive real-time notifications for earthquakes ≥ 5.0 SR',
+    'modal.telegram.openButton': 'Open @TremorIDBot',
+    'modal.telegram.close': 'Close',
+
     // Timeline
     'timeline.title': '7-Day Activity',
     'timeline.loading': 'Loading...',
@@ -64,6 +73,15 @@ const translations = {
     // Navbar
     'nav.searchPlaceholder': 'Cari kota...',
     'nav.telegram': 'Telegram',
+
+    // Telegram Modal
+    'modal.telegram.title': 'Dapatkan Peringatan Gempa',
+    'modal.telegram.desc': 'Dapatkan notifikasi gempa instan ≥ 5.0 magnitudo langsung ke Telegram Anda.',
+    'modal.telegram.step1': 'Ketuk tombol di bawah untuk membuka bot Telegram kami',
+    'modal.telegram.step2': 'Kirim /start untuk berlangganan peringatan',
+    'modal.telegram.step3': 'Terima notifikasi real-time untuk gempa ≥ 5.0 SR',
+    'modal.telegram.openButton': 'Buka @TremorIDBot',
+    'modal.telegram.close': 'Tutup',
 
     // Timeline
     'timeline.title': 'Aktivitas 7 Hari',
