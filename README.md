@@ -13,10 +13,11 @@ TremorID is a real-time earthquake monitoring webapp for Indonesia. Built for th
 - 🗺️ **2D & 3D Interactive Maps** — Leaflet 2D fallback + CesiumJS globe locked to Indonesia
 - 🤖 **AI Chat** — Ask about recent earthquakes in natural language (via freemodel.dev)
 - 📱 **Telegram Bot** — Real-time alerts for quakes ≥ 5.0 SR via @TremorIDBot
+- 🔔 **Notification Modal** — In-app modal with instructions to subscribe via Telegram (EN + ID)
 - 📍 **Translated Locations** — Toggle between Bahasa Indonesia and English (i18n)
 - 📊 **Filtering** — Filter by magnitude range and max depth
 - ⏱️ **Timeline** — Browse earthquakes with date filtering
-- 🔔 **Alerts** — Auto-notification for significant earthquakes (Mag ≥ 5.0)
+- 🚨 **Alerts** — Auto-notification for significant earthquakes (Mag ≥ 5.0)
 
 ## 🛠️ Tech Stack
 
