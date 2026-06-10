@@ -158,7 +158,7 @@ async function broadcastAlert(quake) {
     `🌊 ${formatTsunami(quake.tsunami)}`;
 
   for (const subscriber of subscribers) {
-    const chatId = subscriber.chat_id || subscriber.chatId;
+    const chatId = parseInt(subscriber.chat_id || subscriber.chatId);
     try {
       await bot.telegram.sendMessage(chatId, message, { parse_mode: 'HTML' });
       await sleep(100);
