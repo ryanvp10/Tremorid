@@ -1,0 +1,125 @@
+PORTFOLIO — Apple Developer Academy Indonesia
+=============================================
+
+Applicant: Yan
+GitHub: https://github.com/ryanvp10
+Portfolio Date: June 2026
+
+
+PROJECT 1: TremorID
+-------------------
+Type: Solo
+Live Demo: https://tremorid.netlify.app/
+GitHub: https://github.com/ryanvp10/Tremorid
+
+Summary:
+TremorID is a real-time earthquake monitoring platform for Indonesia that
+visualizes seismic data on interactive 2D and 3D maps. Built during the
+"Everyone Ships Now" hackathon, it combines live data feeds with modern
+web technologies to make earthquake information accessible and actionable
+for the Indonesian public.
+
+Key Features:
+- Real-time earthquake data visualization on 2D (Leaflet) and 3D (CesiumJS)
+  map layers
+- AI-powered chat interface for natural-language earthquake queries
+- Telegram bot integration for instant push alerts on new seismic events
+- Responsive web design accessible on both desktop and mobile
+
+Tech Stack: JavaScript, Leaflet, CesiumJS, Node.js/Express, Telegram Bot API,
+Netlify (frontend), Hugging Face Spaces (backend)
+
+Impact:
+Addresses a critical need in Indonesia, one of the most seismically active
+countries in the world. Provides free, real-time earthquake awareness to
+anyone with a browser or Telegram.
+
+Learnings:
+- Integrating multiple mapping libraries (2D + 3D) in a single application
+- Building reliable Telegram bot alert systems with Node.js
+- Deploying across multiple platforms (Netlify + HF Spaces) with separate
+  git workflows
+- Working with real-time geospatial data APIs
+
+
+PROJECT 2: ResepAI (Recipe Bot)
+-------------------------------
+Type: Solo
+Live Demo: https://recipe-chat.netlify.app/
+GitHub: https://github.com/ryanvp10/recipe-chatbot
+
+Summary:
+ResepAI is an AI-powered Indonesian recipe chatbot that helps users discover
+and explore Indonesian cuisine through natural language conversation. Using
+Retrieval-Augmented Generation (RAG) over a dataset of 10,000+ recipes
+stored in ChromaDB, it delivers accurate, contextually relevant recipe
+recommendations and cooking guidance.
+
+Key Features:
+- Conversational AI interface for recipe discovery in Bahasa Indonesia
+- RAG pipeline over 10,000+ Indonesian recipes via ChromaDB vector search
+- Context-aware responses that reference actual recipe data, not hallucinations
+- Clean, responsive chat UI optimized for mobile and desktop
+
+Tech Stack: Python, ChromaDB, LLM API (freemodel.dev), Flask, JavaScript,
+Netlify (frontend), Hugging Face Spaces (backend)
+
+Impact:
+Preserves and makes accessible the rich diversity of Indonesian regional
+cuisine through modern AI. Useful for home cooks, food enthusiasts, and
+anyone exploring Indonesian culture through food.
+
+Learnings:
+- Designing and implementing a RAG pipeline from scratch
+- Vector database management with ChromaDB (embedding, indexing, retrieval)
+- Prompt engineering for domain-specific conversational AI
+- Balancing response quality with inference cost on free-tier LLM APIs
+
+
+PROJECT 3: Personal Tracker
+---------------------------
+Type: Solo
+Live Demo: https://personaltrac.netlify.app/
+GitHub: https://github.com/ryanvp10/personal-tracker
+
+Summary:
+Personal Tracker is a finance and habit tracking application with a brutalist
+design aesthetic. It allows users to log daily expenses, track financial
+goals, and monitor habits — with the convenience of Telegram as an input
+channel and the ability to export data as PDF or Excel reports.
+
+Key Features:
+- Expense and income logging with categorization
+- Habit tracking with streak counters and progress visualization
+- Telegram bot for quick on-the-go data entry
+- PDF and Excel export for financial reporting
+- JWT-based authentication for secure multi-user access
+- Brutalist UI design — functional, fast, no unnecessary decoration
+
+Tech Stack: Node.js/Express, JWT Auth, Telegram Bot API, PDF/Excel generation,
+Netlify (frontend), Hugging Face Spaces (backend)
+
+Impact:
+Solves a personal need for a simple, fast, no-nonsense tracking tool that
+fits into daily workflows via Telegram. Demonstrates end-to-end full-stack
+development including auth, data persistence, external integrations, and
+report generation.
+
+Learnings:
+- Implementing JWT authentication and session management
+- Building Telegram bot as an alternative input method for web apps
+- Server-side PDF and Excel file generation
+- Designing for brutalist/functional aesthetics while maintaining usability
+
+
+ABOUT ME
+--------
+I am a self-taught full-stack developer based in Indonesia. I build complete,
+shippable products independently — from concept and design through backend,
+frontend, deployment, and integration. I am drawn to projects that solve
+real problems for Indonesian users, whether that is earthquake awareness,
+preserving culinary heritage, or personal finance management.
+
+I learn by shipping. Every project in this portfolio was built end-to-end
+by me, and each one taught me something new about building software that
+people can actually use.
