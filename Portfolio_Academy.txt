@@ -123,3 +123,14 @@ preserving culinary heritage, or personal finance management.
 I learn by shipping. Every project in this portfolio was built end-to-end
 by me, and each one taught me something new about building software that
 people can actually use.
+
+AI-Augmented Development with Hermes-Agent
+-------------------------------------------
+I use Hermes-Agent, an open-source AI agent framework, as my development
+assistant to accelerate my workflow. I define the architecture, make all
+product decisions, and review every change — Hermes handles boilerplate,
+implementation speed, and multi-tool orchestration (browser automation,
+code execution, file management, deployment). This approach lets me ship
+faster while maintaining full understanding and ownership of every project.
+It reflects how I believe modern developers should work: leveraging AI as a
+force multiplier while keeping human judgment at the center.
