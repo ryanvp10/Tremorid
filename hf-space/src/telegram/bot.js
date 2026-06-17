@@ -1,3 +1,4 @@
+// DEBUG: bot.js loaded — commit 71c3607 — 2026-06-10T02:14:33Z
 const { Telegraf } = require('telegraf');
 const db = require('../db');
 const { addSubscriber, removeSubscriber, getAllQuakes } = db;

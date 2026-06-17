@@ -92,7 +92,8 @@ function normalizeTextField(value, fieldName, { required = false } = {}) {
   }
 
   if (normalized.length > MAX_TEXT_FIELD_LENGTH) {
-    throw new Error(`${fieldName} exceeds max length`);
+    console.warn(`[BMKG] ${fieldName} truncated from ${normalized.length} to ${MAX_TEXT_FIELD_LENGTH} chars`);
+    return normalized.slice(0, MAX_TEXT_FIELD_LENGTH);
   }
 
   return normalized;

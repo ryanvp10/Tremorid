@@ -16,7 +16,9 @@ COPY . .
 ENV NODE_ENV=production
 ENV HF_SPACE=1
 
-# Expose port
+# Create data directory for SQLite (persistent on HF Spaces)
+RUN mkdir -p /data
+
 EXPOSE 7860
 
 # Start backend
