@@ -19,7 +19,16 @@ export function LanguageProvider({ children }) {
     return translations[lang]?.[key] || translations.en?.[key] || key
   }
 
-  const toggleLang = () => setLang(prev => prev === 'en' ? 'id' : 'en')
+  const toggleLang = () => setLang(prev => {
+    const next = prev === 'en' ? 'id' : 'en'
+    if (typeof pendo !== 'undefined') {
+      pendo.track('language_changed', {
+        fromLanguage: prev,
+        toLanguage: next,
+      })
+    }
+    return next
+  })
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, toggleLang, t }}>

@@ -9,6 +9,16 @@ function FilterPanel({ onFiltersChange }) {
 
   const handleApply = () => {
     onFiltersChange({ minMag, maxMag, maxDepth })
+
+    if (typeof pendo !== 'undefined') {
+      const activeFilterCount = [minMag, maxMag, maxDepth].filter(v => v !== '').length
+      pendo.track('earthquake_filters_applied', {
+        minMagnitude: minMag !== '' ? Number(minMag) : null,
+        maxMagnitude: maxMag !== '' ? Number(maxMag) : null,
+        maxDepth: maxDepth !== '' ? Number(maxDepth) : null,
+        activeFilterCount,
+      })
+    }
   }
 
   const handleReset = () => {

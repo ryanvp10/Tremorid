@@ -35,6 +35,16 @@ function Navbar({ onToggleSidebar, onSearchResults }) {
     const data = await response.json()
     setHasSearched(true)
     onSearchResults?.(data, { lat: parseFloat(lat), lon: parseFloat(lon) })
+
+    if (typeof pendo !== 'undefined') {
+      pendo.track('earthquake_search_executed', {
+        searchQuery: searchQuery.trim(),
+        geocodedLatitude: parseFloat(lat),
+        geocodedLongitude: parseFloat(lon),
+        resultsCount: Array.isArray(data) ? data.length : 0,
+        language: lang,
+      })
+    }
   }
 
   const onClearSearch = () => {

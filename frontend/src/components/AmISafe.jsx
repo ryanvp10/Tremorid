@@ -221,6 +221,18 @@ function AmISafe() {
         largestMagnitude,
         status,
       })
+
+      if (typeof pendo !== 'undefined') {
+        pendo.track('safety_check_completed', {
+          cityName: city.name,
+          cityLatitude: city.latitude,
+          cityLongitude: city.longitude,
+          safetyStatus: status,
+          nearbyQuakeCount: nearbyQuakes.length,
+          largestMagnitude,
+          radiusKm: 500,
+        })
+      }
     } catch (err) {
       setResult(null)
       setError(err.message || t('safe.errorGeneral'))

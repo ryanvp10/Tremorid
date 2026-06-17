@@ -54,6 +54,16 @@ function DetailPanel({ quake, onClose }) {
           : data.summary ?? data.text ?? data.message ?? ''
 
         setSummary(summaryText || t('detail.noSummary'))
+
+        if (typeof pendo !== 'undefined') {
+          pendo.track('ai_summary_loaded', {
+            earthquakeId: quake.id,
+            hasSummary: Boolean(summaryText),
+            summaryLength: summaryText ? summaryText.length : 0,
+            magnitude: Number(quake.Magnitude ?? quake.magnitude ?? quake.mag) || null,
+            location: quake.Wilayah || quake.location || quake.place || null,
+          })
+        }
       } catch (error) {
         if (error.name !== 'AbortError') {
           setSummaryError(error.message || t('detail.loadingSummary'))

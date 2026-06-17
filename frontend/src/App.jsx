@@ -16,6 +16,20 @@ function App() {
   const handleQuakeClick = (quake) => {
     setSelectedQuake(quake)
     setSidebarOpen(false)
+
+    if (typeof pendo !== 'undefined') {
+      pendo.track('earthquake_selected', {
+        earthquakeId: quake.id || null,
+        magnitude: Number(quake.Magnitude ?? quake.magnitude ?? quake.mag) || null,
+        depth: Number(quake.Kedalaman ?? quake.depth) || null,
+        location: quake.Wilayah || quake.location || quake.place || null,
+        hasTsunamiRisk: Boolean(
+          `${quake.Potensi ?? ''} ${quake.tsunami ?? ''}`.toLowerCase().includes('tsunami')
+        ),
+        latitude: Number(quake.latitude ?? quake.lat) || null,
+        longitude: Number(quake.longitude ?? quake.lng) || null,
+      })
+    }
   }
 
   const handleSearchResults = (quakes, location) => {
