@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Cartesian3,
   Color,
@@ -34,6 +34,7 @@ function formatInfoValue(value) {
 function Map3D({ selectedQuake }) {
   const containerRef = useRef(null)
   const viewerRef = useRef(null)
+  const [loading, setLoading] = useState(true)
   const { lang } = useLanguage()
 
   useEffect(() => {
@@ -76,11 +77,19 @@ function Map3D({ selectedQuake }) {
       sceneModePicker: false,
       navigationHelpButton: false,
       fullscreenButton: false,
+      backgroundColor: Color.fromCssColorString('#0a1628'),
     })
     viewerRef.current = viewer
 
     viewer.camera.setView({
       destination: Cartesian3.fromDegrees(118, -2, 6500000),
+    })
+
+    // Force resize on mobile — fixes black globe on initial load
+    requestAnimationFrame(() => {
+      viewer.resize()
+      viewer.scene.requestRender()
+      setLoading(false)
     })
 
     async function fetchQuakes() {
@@ -149,7 +158,19 @@ function Map3D({ selectedQuake }) {
     }
   }, [])
 
-  return <div ref={containerRef} className="h-full w-full" />
+  return (
+    <div className="relative h-full w-full">
+      {loading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0a1628]">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+            <span className="text-sm text-white/60">Loading globe...</span>
+          </div>
+        </div>
+      )}
+      <div ref={containerRef} className="h-full w-full" />
+    </div>
+  )
 }
 
 export default Map3D
