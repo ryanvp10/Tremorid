@@ -1,7 +1,4 @@
-// HF Spaces injects env vars via secrets — dotenv not needed in production
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config()
-}
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const quakeRoutes = require('./routes/quakes')

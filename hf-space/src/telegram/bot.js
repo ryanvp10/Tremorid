@@ -1,8 +1,9 @@
-// DEBUG: bot.js loaded — commit 71c3607 — 2026-06-10T02:14:33Z
+// DEBUG: bot.js loaded — commit e4fda66 — 2026-06-17
 const { Telegraf } = require('telegraf');
 const db = require('../db');
 const { addSubscriber, removeSubscriber, getAllQuakes } = db;
 const { generateChatResponse } = require('../services/ai');
+const { HttpsProxyAgent } = require('https-proxy-agent');
 
 const chatRateLimiter = new Map();
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -17,7 +18,14 @@ function initBot() {
   }
 
   try {
-    bot = new Telegraf(token);
+    // Use proxy agent if HTTPS_PROXY is set (HF Spaces blocks direct HTTPS to Telegram)
+    const proxyUrl = process.env.HTTPS_PROXY;
+    const agent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined;
+
+    bot = new Telegraf(token, {
+      telegram: { agent },
+      handlerTimeout: 10000,
+    });
 
     bot.start(async (ctx) => {
       try {
@@ -106,7 +114,7 @@ function initBot() {
       }
     });
 
-    console.log('[BOT] Telegram bot initialized (webhook mode)');
+    console.log('[BOT] Telegram bot initialized' + (proxyUrl ? ' (proxy mode)' : ''));
     return bot;
   } catch (e) {
     console.error('[BOT] Failed to initialize bot:', e.message);
@@ -171,7 +179,7 @@ async function broadcastAlert(quake) {
 
 function getBotWebhookHandler() {
   if (!bot) return null;
-  return bot.webhookCallback('/telegram-webhook');
+  return bot.webhookCallback('/api/telegram-webhook');
 }
 
 module.exports = { initBot, getBot, broadcastAlert, getBotWebhookHandler };

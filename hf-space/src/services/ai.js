@@ -1,9 +1,32 @@
-// AI service — Freemodel.dev (gpt-5.5)
+// AI service — OpenRouter (free model)
 
 async function askAI(messages) {
-  const apiKey = process.env.FREEMODEL_API_KEY
-  if (!apiKey) throw new Error('FREEMODEL_API_KEY not set')
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.FREEMODEL_API_KEY
+  if (!apiKey) throw new Error('No AI API key set')
 
+  // Use OpenRouter if available, fallback to freemodel.dev
+  if (process.env.OPENROUTER_API_KEY) {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://tremorid.netlify.app',
+        'X-Title': 'TremorID',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o-mini',
+        messages,
+        temperature: 0.2,
+        max_tokens: 500,
+      }),
+    })
+    const data = await res.json()
+    if (data.error) throw new Error(JSON.stringify(data.error))
+    return data.choices[0].message.content
+  }
+
+  // Legacy freemodel.dev fallback
   const res = await fetch('https://api.freemodel.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
