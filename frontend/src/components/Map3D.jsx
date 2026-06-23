@@ -85,12 +85,17 @@ function Map3D({ selectedQuake }) {
       destination: Cartesian3.fromDegrees(118, -2, 6500000),
     })
 
-    // Force resize on mobile — fixes black globe on initial load
-    requestAnimationFrame(() => {
-      viewer.resize()
-      viewer.scene.requestRender()
-      setLoading(false)
-    })
+    // Force tile load on mobile — kickstart by slightly moving camera after a tick
+    setTimeout(() => {
+      if (!isMounted) return
+      const current = viewer.camera.position
+      viewer.camera.moveRight(0.001)
+      setTimeout(() => {
+        if (!isMounted) return
+        viewer.camera.flyTo({ destination: current, duration: 0 })
+        setLoading(false)
+      }, 300)
+    }, 100)
 
     async function fetchQuakes() {
       try {
